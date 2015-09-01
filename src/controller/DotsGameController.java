@@ -335,7 +335,6 @@ public class DotsGameController implements GameController {
         DotsPair dp = this.currentDotsPair;
         boolean correct = GameLogic.checkAnswerCorrect(e, dp);
         this.updatePlayer(correct);   
-        this.updateGUI(correct);
         this.dataWriter.grabData(this);
     }
     
@@ -356,53 +355,7 @@ public class DotsGameController implements GameController {
         currentPlayer.incrementNumRounds();
     }
     
-    /** 
-     * Update the progressbar, audio, stars, and background.
-     * @param correct Whether the subject answered correctly.
-     */
-    private void updateGUI(boolean correct) {
-        if (correct) {
-            if (theView.getProgressBar().isIndeterminate()) {
-                theView.getProgressBar().setProgress(0.0);
-                theView.getProgressBar().setStyle("-fx-accent: #0094C5;");
-            }
-            theView.getProgressBar().setProgress(theView.getProgressBar().getProgress() + .1666667);
-            if (theView.getProgressBar().getProgress() >= 1.00) {
-                theView.getProgressBar().setProgress(0.25);
-                
-                URL powerUpSound = getClass().getResource("/res/sounds/Powerup.wav");
-                new AudioClip(powerUpSound.toString()).play();
-                
-                int starToReveal = numStars;
-                theView.getStarNodes()[starToReveal].setVisible(true);
-                numStars++;
-                
-                this.checkBackground();
-            }
-        } else {
-            theView.getProgressBar().setStyle("-fx-accent: #0094C5;");
-            if (PUNISH) {
-                theView.getProgressBar().setProgress(theView.getProgressBar().getProgress() - .125);
-                if (theView.getProgressBar().isIndeterminate()) {
-                    theView.getProgressBar().setStyle("-fx-accent: red;");                    
-                }
-            }
-        }
-        this.feedbackSound(correct); 
-    }
-    
-    /**
-     * Check to see if background needs to be switched and if so change the background.
-     */
-    private void checkBackground() {
-        if (numStars % STARS_PER_BACKGROUND == 0) {
-            theView.changeBackground(++backgroundNumber);
-            if (this.currentColor < DOT_COLORS.length - 1) {
-                this.currentColor++;
-            }
-            this.playSound("Applause.mp3", 1.4);
-        }    
-    }
+//Need to re-add feedback sound
     
     /** Play sound */
     private void playSound(String soundFile, double rate) {
@@ -642,27 +595,6 @@ public class DotsGameController implements GameController {
         long responseTime = System.nanoTime() - responseTimeMetric;
         thePlayer.setResponseTime(responseTime);
         logger.info("Response time: " + responseTime / 1000000000.0);
-    }
-    
-    /**
-     * Slowly drains the progress bar to encourage the user not to spend too much time thinking.
-     */
-    public void beginProgressBarDrainage() {
-        theView.getProgressBar().setProgress(0.6);
-        
-        Timeline drainer = new Timeline(
-                new KeyFrame(Duration.seconds(0), evt -> {
-                    if (gameController.theView.getProgressBar().getProgress() > 1.0) {
-                        gameController.theView.getProgressBar().setStyle("-fx-accent: #00CC00;");
-                    } else {
-                        gameController.theView.getProgressBar().setStyle("-fx-accent: #0094C5;");
-                    }
-                    if (gameController.theView.getProgressBar().getProgress() > .005) {
-                        gameController.theView.getProgressBar().setProgress(theView.getProgressBar().getProgress() - .0035);
-                    }
-                }), new KeyFrame(Duration.seconds(0.065)));
-        drainer.setCycleCount(Animation.INDEFINITE);
-        drainer.play();
     }
 
     public Player getThePlayer() {

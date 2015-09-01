@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -86,15 +87,11 @@ public class GameGUI {
     /** Game Screen - The right choice. */
     private Canvas rightOption;
     
-    /** Game Screen - Progress Bar. */
-    private ProgressBar progressBar;
     /** Game Screen - Get Ready */
     private Label getReady;
     /** Game Screen - Get Ready Bar */
     private ProgressBar getReadyBar;
     private VBox getReadyBox;
-    /** Game Screen - Stars */
-    private ImageView starNodes[];
     /** Game Screen - Practice label */
     private Label practice;
     
@@ -113,7 +110,8 @@ public class GameGUI {
         DGC = new DotsGameController(this);
         this.setPrimaryStage(stage);
         this.layout = new AnchorPane();
-        this.scene = new Scene(this.layout, SetUp.SCREEN_WIDTH, SetUp.SCREEN_HEIGHT);
+        this.scene = new Scene(this.layout, SetUp.SCREEN_WIDTH, SetUp.SCREEN_HEIGHT, Color.BLUE);
+        layout.setStyle("-fx-background-color:#858585;");
         this.primaryStage.setScene(this.scene);
         this.primaryStage.setTitle("Letter Game");  
         this.setLoginScreen();
@@ -173,7 +171,6 @@ public class GameGUI {
      * Change the background in real time.
      */
     public void changeBackground(int level) { 
-        SetUp.setBackground(this.layout, level);
         this.scene.setRoot(this.layout);
     }
     
@@ -248,14 +245,6 @@ public class GameGUI {
         this.primaryStage = primaryStage;
     }
 
-    public ProgressBar getProgressBar() {
-        return progressBar;
-    }
-
-    public void setProgressBar(ProgressBar progressBar) {
-        this.progressBar = progressBar;
-    }
-
     public Label getGetReady() {
         return getReady;
     }
@@ -278,14 +267,6 @@ public class GameGUI {
 
     public void setLayout(AnchorPane layout) {
         this.layout = layout;
-    }
-
-    public ImageView[] getStarNodes() {
-        return starNodes;
-    }
-
-    public void setStarNodes(ImageView starNodes[]) {
-        this.starNodes = starNodes;
     }
 
     public VBox getLoginBox() {

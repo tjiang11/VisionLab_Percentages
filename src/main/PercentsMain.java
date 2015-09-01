@@ -14,7 +14,7 @@ import javafx.stage.Stage;
  * comes later in the alphabet.
  *
  */
-public class DotsMain extends Application {
+public class PercentsMain extends Application {
     
     /**
     * Main class.

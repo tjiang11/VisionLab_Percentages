@@ -46,10 +46,7 @@ import javafx.stage.Screen;
  * 
  */
 public final class SetUp {
-    
-    /** Background */
-    static final String BACKGROUNDS[] = {"26.png", "30.png", "41.png", "14.png", "21.png", "31.png"};
-    
+        
     /** Width and height of the computer's screen */
     static final Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
     static final double SCREEN_WIDTH = primaryScreenBounds.getWidth();
@@ -128,7 +125,6 @@ public final class SetUp {
         view.getPrimaryStage().show(); 
         view.getLoginBox().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getLoginBox().getWidth() / 2));
         view.getLoginBox().setLayoutY(SetUp.SCREEN_HEIGHT * .2);
-        setBackground(view.getLayout(), 0);       
     }
     
     /**
@@ -196,14 +192,6 @@ public final class SetUp {
         
         setUpOptions(view);
         
-        view.setProgressBar(new ProgressBar(0.0));
-        view.getProgressBar().setScaleY(2.0);
-        view.getProgressBar().setLayoutX(PROGRESS_BAR_X);
-        view.getProgressBar().setLayoutY(PROGRESS_BAR_Y);
-        view.getProgressBar().getTransforms().setAll(
-                new Rotate(-90, 0, 0),
-                new Translate(-100, 0));
-        
         view.setGetReadyBar(new ProgressBar(0.0));
         view.getGetReadyBar().setPrefWidth(300.0);
         view.getGetReadyBar().setStyle("-fx-accent: green;");
@@ -218,11 +206,9 @@ public final class SetUp {
         view.setPractice(new Label(Strings.PRACTICE_SP));
         view.getPractice().setFont(new Font("Tahoma", 50));
 
-        view.getLayout().getChildren().setAll(view.getGetReadyBox(), view.getProgressBar(), 
+        view.getLayout().getChildren().setAll(view.getGetReadyBox(),
                 view.getLeftOption(), view.getRightOption(), view.getPractice());
         
-        setStars(view);
-
         view.getGetReadyBox().setPrefHeight(SCREEN_HEIGHT * .1);
         view.getGetReadyBox().setPrefWidth(SCREEN_WIDTH * .4);    
         view.getGetReadyBox().setLayoutY((SetUp.SCREEN_HEIGHT / 2) - view.getGetReadyBox().getPrefHeight());
@@ -234,25 +220,7 @@ public final class SetUp {
         view.getPractice().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getPractice().getPrefWidth() / 2));
         view.getPractice().setLayoutY(SetUp.SCREEN_HEIGHT * .04);
         
-        setBackground(view.getLayout(), 0);
         view.getScene().setCursor(Cursor.NONE);
-    }
-    
-    private static void setStars(GameGUI view) {
-        
-        Image stars[] = new Image[NUM_STARS];
-        view.setStarNodes(new ImageView[NUM_STARS]);
-        
-        for (int i = 0; i < NUM_STARS; i++) {
-            stars[i] = new Image("/res/images/star2.png");
-            view.getStarNodes()[i] = new ImageView(stars[i]);
-            view.getStarNodes()[i].setScaleX(STAR_SCALE);
-            view.getStarNodes()[i].setScaleY(STAR_SCALE);
-            view.getStarNodes()[i].setLayoutY(STAR_Y);
-            view.getStarNodes()[i].setLayoutX(FIRST_STAR_X - (i * STAR_SHIFT));
-            view.getStarNodes()[i].setVisible(false);
-            view.getLayout().getChildren().add(view.getStarNodes()[i]);
-        }            
     }
 
     /**
@@ -290,32 +258,7 @@ public final class SetUp {
         view.getFinishMessage().setPrefWidth(SCREEN_WIDTH * .3);
         view.getFinishMessage().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getFinishMessage().getPrefWidth() / 2));
         view.getFinishMessage().setLayoutY((SetUp.SCREEN_HEIGHT / 2) - (view.getFinishMessage().getPrefHeight() / 2));
-        setBackground(view.getLayout(), level);
     }
-    
-    /**
-     * Set the background.
-     * @param view The graphical user interface.
-     * @param layout The layout.
-     */
-    public static void setBackground(AnchorPane layout, int level) { 
-        if (level >= BACKGROUNDS.length) {
-            level = BACKGROUNDS.length - 1;
-        }
-        String backgroundName = BACKGROUNDS[level];
-        
-        BackgroundImage bg = new BackgroundImage(
-                new Image(
-                        "/res/images/" + backgroundName, 
-                        SCREEN_WIDTH,
-                        SCREEN_HEIGHT, 
-                        false, true),
-                BackgroundRepeat.NO_REPEAT, 
-                BackgroundRepeat.NO_REPEAT, 
-                BackgroundPosition.CENTER,
-                BackgroundSize.DEFAULT);
-        layout.setBackground(new Background(bg));
-    }  
     
     /**
      * Create the exit pop up asking if user wants to quit.
