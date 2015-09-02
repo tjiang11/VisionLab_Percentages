@@ -82,10 +82,8 @@ public class DotsGameController implements GameController {
     private GameGUI theView;
     /** The current scene. */
     private Scene theScene;
-    /** Left Canvas Graphics Context */
-    private GraphicsContext gcLeft;
-    /** Right Canvas Graphics Context */
-    private GraphicsContext gcRight;
+    /** Canvas Graphics Context */
+    private GraphicsContext graphicsContextCanvas;
     
     /** Index of the current dots color in DOTS_COLORS */
     private int currentColor;
@@ -103,14 +101,6 @@ public class DotsGameController implements GameController {
     
     /** Describes the current state of gameplay */
     private static GameState gameState;
-    
-    /** How many stars the player has earned. 
-     * The player earns a star for every time the
-     * progress bar is filled. */
-    private static int numStars = 0;
-    
-    /** Number of stars earned before changing to next background. */
-    private static final int STARS_PER_BACKGROUND = 3;
     
     private enum GameState {
         /** Player has responded and next round is loading. */
@@ -335,6 +325,7 @@ public class DotsGameController implements GameController {
         DotsPair dp = this.currentDotsPair;
         boolean correct = GameLogic.checkAnswerCorrect(e, dp);
         this.updatePlayer(correct);   
+        this.feedbackSound(correct);
         this.dataWriter.grabData(this);
     }
     
@@ -410,8 +401,7 @@ public class DotsGameController implements GameController {
                 gameState = GameState.WAITING_FOR_RESPONSE_VISIBLE;
                 feedback_given = false;
                 
-                gcLeft = theView.getLeftOption().getGraphicsContext2D();
-                gcRight = theView.getRightOption().getGraphicsContext2D();
+                graphicsContextCanvas = theView.getDotsCanvas().getGraphicsContext2D();
                 
                 clearRound();    
                 setOptions();
@@ -463,7 +453,6 @@ public class DotsGameController implements GameController {
     private void finishPractice() {
         theView.setPracticeCompleteScreen();
         theView.getScene().setOnKeyPressed(null);
-        numStars = 0;
         backgroundNumber = 0;
     }
     
@@ -471,14 +460,8 @@ public class DotsGameController implements GameController {
      * Clears the options.
      */
     public void clearRound() {
-        gcLeft.setFill(CANVAS_COLOR);
-        gcLeft.fillRect(0, 0, theView.getLeftOption().getWidth(),theView.getLeftOption().getHeight());
-        
-        gcRight.setFill(CANVAS_COLOR);
-        gcRight.fillRect(0, 0, theView.getRightOption().getWidth(),theView.getRightOption().getHeight());
-        
-        theView.getLeftOption().setOpacity(0.85);
-        theView.getRightOption().setOpacity(0.85);
+        graphicsContextCanvas.setFill(CANVAS_COLOR);
+        graphicsContextCanvas.fillRect(0, 0, theView.getDotsCanvas().getWidth(),theView.getDotsCanvas().getHeight());
     }
 
     /**
@@ -536,13 +519,12 @@ public class DotsGameController implements GameController {
      * Show the choices.
      */
     private void paintDots() {
-        theView.getLeftOption().setOpacity(1.0);
-        theView.getRightOption().setOpacity(1.0);
+        theView.getDotsCanvas().setOpacity(1.0);
         
         DotSet dotSetOne = this.currentDotsPair.getDotSetOne();
         DotSet dotSetTwo = this.currentDotsPair.getDotSetTwo();
-        this.paintDotSet(dotSetOne, gcLeft);
-        this.paintDotSet(dotSetTwo, gcRight);
+        this.paintDotSet(dotSetOne, graphicsContextCanvas);
+        this.paintDotSet(dotSetTwo, graphicsContextCanvas);
     }
     
     /**

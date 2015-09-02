@@ -83,9 +83,7 @@ public class GameGUI {
     private Button startAssessment;
     
     /** Game Screen - The left choice. */
-    private Canvas leftOption;
-    /** Game Screen - The right choice. */
-    private Canvas rightOption;
+    private Canvas dotsCanvas;
     
     /** Game Screen - Get Ready */
     private Label getReady;
@@ -189,21 +187,14 @@ public class GameGUI {
         this.scene = s;
     }
     
-    public Canvas getLeftOption() {
-        return this.leftOption;
+    public Canvas getDotsCanvas() {
+        return this.dotsCanvas;
     }
     
-    public void setLeftOption(Canvas c) {
-        this.leftOption = c;
+    public void setDotsCanvas(Canvas c) {
+        this.dotsCanvas = c;
     }
     
-    public void setRightOption(Canvas c) {
-        this.rightOption = c;
-    }
-    
-    public Canvas getRightOption() {
-        return this.rightOption;
-    }
 
     public Button getStart() {
         return start;

@@ -11,14 +11,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -26,8 +18,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Translate;
 import javafx.stage.Popup;
 import javafx.stage.Screen;
 
@@ -56,20 +46,11 @@ public final class SetUp {
      * Game Screen. */
     static final int NUM_STARS = 100;
     /** Positions of the choices the subject can pick. */
-    static final int LEFT_OPTION_X = (int) (SCREEN_WIDTH * .15);
-    static final int LEFT_OPTION_Y = (int) (SCREEN_HEIGHT * .15);
-    public static final int OPTION_WIDTH = (int) (SCREEN_WIDTH * .3);
-    public static final int OPTION_HEIGHT = (int) (SCREEN_HEIGHT * .7);
-    static final int RIGHT_OPTION_X = (int) (SCREEN_WIDTH - LEFT_OPTION_X - OPTION_WIDTH);
-    static final int RIGHT_OPTION_Y = LEFT_OPTION_Y;
-    static final int PROGRESS_BAR_X = (int) (SCREEN_WIDTH * .02);
-    static final int PROGRESS_BAR_Y = (int) (SCREEN_HEIGHT * .05);
-    static final int FIRST_STAR_X = (int) (SCREEN_WIDTH * .93);
-    static final int STAR_Y = -25;
-    static final int STAR_SHIFT = 35;
-    static final double STAR_SCALE = .28;
-    /** Font size of the letter options. */
-    static final int LETTER_SIZE = 100;
+    static final int DOTS_CANVAS_X = (int) (SCREEN_WIDTH * .25);
+    static final int DOTS_CANVAS_Y = (int) (SCREEN_WIDTH * .15);
+    public static final int DOTS_CANVAS_WIDTH = (int) (SCREEN_WIDTH * .5);
+    public static final int DOTS_CANVAS_HEIGHT = (int) (SCREEN_HEIGHT * .7);
+   
   
     /** Disable constructing of an object. */
     private SetUp() {
@@ -207,7 +188,7 @@ public final class SetUp {
         view.getPractice().setFont(new Font("Tahoma", 50));
 
         view.getLayout().getChildren().setAll(view.getGetReadyBox(),
-                view.getLeftOption(), view.getRightOption(), view.getPractice());
+                view.getDotsCanvas(), view.getPractice());
         
         view.getGetReadyBox().setPrefHeight(SCREEN_HEIGHT * .1);
         view.getGetReadyBox().setPrefWidth(SCREEN_WIDTH * .4);    
@@ -228,13 +209,10 @@ public final class SetUp {
      * @param view The graphical user interface.
      */
     static void setUpOptions(GameGUI view) {
-        view.setLeftOption(new Canvas(OPTION_WIDTH, OPTION_HEIGHT));
-        view.setRightOption(new Canvas(OPTION_WIDTH, OPTION_HEIGHT));
+        view.setDotsCanvas(new Canvas(DOTS_CANVAS_WIDTH, DOTS_CANVAS_HEIGHT));
 
-        view.getLeftOption().setLayoutX(LEFT_OPTION_X);
-        view.getLeftOption().setLayoutY(LEFT_OPTION_Y);
-        view.getRightOption().setLayoutX(RIGHT_OPTION_X);
-        view.getRightOption().setLayoutY(RIGHT_OPTION_Y);
+        view.getDotsCanvas().setLayoutX(DOTS_CANVAS_X);
+        view.getDotsCanvas().setLayoutY(DOTS_CANVAS_Y);
     }
 
     /**

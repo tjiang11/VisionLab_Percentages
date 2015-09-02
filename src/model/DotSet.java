@@ -102,8 +102,8 @@ public class DotSet {
     private void fillDots() {
         int i = 0;
         while (i < this.totalNumDots) {
-            int x = randomGenerator.nextInt(SetUp.OPTION_WIDTH - MAX_DIAMETER);
-            int y = randomGenerator.nextInt(SetUp.OPTION_HEIGHT - MAX_DIAMETER);
+            int x = randomGenerator.nextInt(SetUp.DOTS_CANVAS_WIDTH - MAX_DIAMETER);
+            int y = randomGenerator.nextInt(SetUp.DOTS_CANVAS_HEIGHT - MAX_DIAMETER);
             int diameter = randomGenerator.nextInt(MAX_DIAMETER - MIN_DIAMETER) + MIN_DIAMETER; 
             
             if (!overLapsOther(x, y, diameter)) {
@@ -123,8 +123,8 @@ public class DotSet {
         
         while (dotsFilled < this.totalNumDots) {
             
-            int x = randomGenerator.nextInt(SetUp.OPTION_WIDTH - MAX_DIAMETER);
-            int y = randomGenerator.nextInt(SetUp.OPTION_HEIGHT - MAX_DIAMETER);
+            int x = randomGenerator.nextInt(SetUp.DOTS_CANVAS_WIDTH - MAX_DIAMETER);
+            int y = randomGenerator.nextInt(SetUp.DOTS_CANVAS_HEIGHT - MAX_DIAMETER);
             
             if (this.totalNumDots - dotsFilled >= 2) {
                 int diameterVariance = randomGenerator.nextInt(maxDiameterVariance) + 1;
@@ -135,8 +135,8 @@ public class DotSet {
                 this.addDotNoOverlap(x, y, diameterGreater);
                 dotsFilled++;
                 
-                x = randomGenerator.nextInt(SetUp.OPTION_WIDTH - MAX_DIAMETER); 
-                y = randomGenerator.nextInt(SetUp.OPTION_HEIGHT - MAX_DIAMETER);
+                x = randomGenerator.nextInt(SetUp.DOTS_CANVAS_WIDTH - MAX_DIAMETER); 
+                y = randomGenerator.nextInt(SetUp.DOTS_CANVAS_HEIGHT - MAX_DIAMETER);
                 
                 this.addDotNoOverlap(x, y, diameterLower);
                 dotsFilled++;
@@ -158,8 +158,8 @@ public class DotSet {
      */
     private void addDotNoOverlap(int x, int y, double diameter) {
         while (overLapsOther(x, y, diameter)) {
-            x = randomGenerator.nextInt(SetUp.OPTION_WIDTH - MAX_DIAMETER); 
-            y = randomGenerator.nextInt(SetUp.OPTION_HEIGHT - MAX_DIAMETER);
+            x = randomGenerator.nextInt(SetUp.DOTS_CANVAS_WIDTH - MAX_DIAMETER); 
+            y = randomGenerator.nextInt(SetUp.DOTS_CANVAS_HEIGHT - MAX_DIAMETER);
         }
         this.addDotAndDiameterAndArea(x, y, diameter);
     }
