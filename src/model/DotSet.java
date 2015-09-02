@@ -71,6 +71,21 @@ public class DotSet {
         else { this.fillDots(); }
     }
     
+    /**
+     * Constructor for DotSet with a specified number of total dots to contain
+     * and to not overlap with another DotSet.
+     * @param numDots total number of dots this dotSet will have.
+     * @param otherDotSet other DotSet to not overlap with.
+     */
+    public DotSet(int numDots, DotSet otherDotSet) {
+        loadConfig();
+        this.setTotalNumDots(numDots);
+        this.positions = new ArrayList<Coordinate>();
+        this.diameters = new ArrayList<Double>(); 
+        this.totalArea = 0;
+        this.fillDots(otherDotSet);
+    }
+    
     private void loadConfig() {
         new Config();
         AVERAGE_RADIUS_CONTROL = Config.getPropertyBoolean("average.radius.control");
@@ -150,6 +165,23 @@ public class DotSet {
         }
     }
     
+    private void fillDots(DotSet otherDotSet) {
+        int i = 0;
+        while (i < this.totalNumDots) {
+            int x = randomGenerator.nextInt(SetUp.DOTS_CANVAS_WIDTH - MAX_DIAMETER);
+            int y = randomGenerator.nextInt(SetUp.DOTS_CANVAS_HEIGHT - MAX_DIAMETER);
+            int diameter = randomGenerator.nextInt(MAX_DIAMETER - MIN_DIAMETER) + MIN_DIAMETER; 
+            
+            if (!overLapsOther(x, y, diameter) 
+                    && !overLapsOtherInOtherDotSet(x, y, diameter, otherDotSet)) {
+                    this.addDotAndDiameterAndArea(x, y, diameter);
+                    i++;
+                }
+            }
+        }
+    
+    
+
     /**
      * Add a dot to the dotSet without overlapping another dot.
      * @param x X coordinate to attempt to add dot in.
@@ -179,6 +211,29 @@ public class DotSet {
         for (int i = 0; i < positions.size(); i++) {
             Coordinate otherPosition = positions.get(i);
             double otherDiameter = diameters.get(i);
+            double otherRadius = otherDiameter/2;
+            double otherCenterX = otherPosition.x + otherRadius;
+            double otherCenterY = otherPosition.y + otherRadius;
+
+            double dx = centerX - otherCenterX;
+            double dy = centerY - otherCenterY;
+            double distance = Math.hypot(dx, dy);
+            if (distance < radius + otherRadius + MIN_DISTANCE_BETWEEN_DOTS) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean overLapsOtherInOtherDotSet(int x, int y, int diameter,
+            DotSet otherDotSet) {
+        double radius = diameter / 2.0;
+        double centerX = x + radius;
+        double centerY = y + radius;
+
+        for (int i = 0; i < otherDotSet.positions.size(); i++) {
+            Coordinate otherPosition = otherDotSet.positions.get(i);
+            double otherDiameter = otherDotSet.diameters.get(i);
             double otherRadius = otherDiameter/2;
             double otherCenterX = otherPosition.x + otherRadius;
             double otherCenterY = otherPosition.y + otherRadius;

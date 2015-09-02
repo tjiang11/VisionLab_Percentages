@@ -50,7 +50,7 @@ public class DotsPair {
         loadConfig();
 
         this.dotSetOne = new DotSet(numDotsOne);
-        this.dotSetTwo = new DotSet(numDotsTwo);
+        this.dotSetTwo = new DotSet(numDotsTwo, this.dotSetOne);
         
         this.controlType = controlType;
         

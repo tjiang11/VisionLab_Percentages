@@ -523,7 +523,9 @@ public class DotsGameController implements GameController {
         
         DotSet dotSetOne = this.currentDotsPair.getDotSetOne();
         DotSet dotSetTwo = this.currentDotsPair.getDotSetTwo();
+        graphicsContextCanvas.setFill(Color.GREEN);
         this.paintDotSet(dotSetOne, graphicsContextCanvas);
+        graphicsContextCanvas.setFill(Color.ORANGE);
         this.paintDotSet(dotSetTwo, graphicsContextCanvas);
     }
     
@@ -557,7 +559,6 @@ public class DotsGameController implements GameController {
      * @param 
      */
     private void paintDotSet(DotSet dotSet, GraphicsContext graphicsContext) {
-        graphicsContext.setFill(DOT_COLORS[currentColor]);
         for (int i = 0; i < dotSet.getTotalNumDots(); i++) {
             
             int x = dotSet.getPositions().get(i).x;
@@ -568,7 +569,6 @@ public class DotsGameController implements GameController {
                     dotSet.getDiameters().get(i));
         }
     }
-   
 
     /** 
      * Record the response time of the subject. 
