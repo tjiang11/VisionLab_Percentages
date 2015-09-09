@@ -15,6 +15,9 @@ public enum CurrentState {
     /** Practice rounds. */
     PRACTICE,
     
+    /** BETWEEN PRACTICE AND GAMEPLAY */
+    PRACTICE_FINISHED,
+    
     /** The actual assessment where data is being recorded. */
     GAMEPLAY,
     //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\

@@ -82,8 +82,10 @@ public class GameGUI {
     /** Button to begin actual assessment. */
     private Button startAssessment;
     
-    /** Game Screen - The left choice. */
+    /** Game Screen - The canvas. */
     private Canvas dotsCanvas;
+    /** Game Screen - The Question. */
+    private Label question;
     
     /** Game Screen - Get Ready */
     private Label getReady;
@@ -371,5 +373,13 @@ public class GameGUI {
 
     public void setExitPopup(Popup exitPopup) {
         this.exitPopup = exitPopup;
+    }
+
+    public Label getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Label question) {
+        this.question = question;
     }
 }

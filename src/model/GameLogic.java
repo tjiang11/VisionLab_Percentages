@@ -18,7 +18,7 @@ public final class GameLogic {
      * @param dotsPair The current AlphaPair being evaluated.
      * @return correct True if correct, false otherwise.
      */
-    public static boolean checkAnswerCorrect(KeyEvent e, DotsPair dotsPair) {
+    public static boolean checkAnswerCorrect(KeyEvent e, DotsPair dotsPair, boolean questionReversed) {
         boolean correct;
         if ((dotsPair.isLeftCorrect() && e.getCode() == KeyCode.F)
                 || !dotsPair.isLeftCorrect() && e.getCode() == KeyCode.J) {
@@ -26,6 +26,13 @@ public final class GameLogic {
         } else {  
             correct = false;     
         } 
+        if (questionReversed) {
+            if (correct) {
+                correct = false;
+            } else {
+                correct = true;
+            }
+        }
         return correct;
     }
 }

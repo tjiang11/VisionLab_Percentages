@@ -3,6 +3,8 @@ package model;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.sun.media.jfxmedia.logging.Logger;
+
 /**
  * Generates DotsPairs with random numbers of dots.
  * 
@@ -29,6 +31,12 @@ public class DotsPairGenerator {
     static final int MEDIUM_MODE = 1;
     static final int HARD_MODE = 2;
     
+    /** Map from each block to an integer representation. */
+    public static final int MORE_THAN_HALF_BLOCK = 0;
+    public static final int MORE_THAN_FIFTY_BLOCK = 1;
+    public static final int MORE_THAN_SIXTY_BLOCK = 2;
+    public static final int MORE_THAN_SEVENTYFIVE_BLOCK = 3;    
+    
     /** Number of difficulty modes. */
     static final int NUM_MODES = 3;
     
@@ -54,8 +62,14 @@ public class DotsPairGenerator {
     /** The difficulty setting: EASY, MEDIUM, HARD */
     private int difficultyMode;
     
+    /** The current block setting */
+    private int blockMode;
+    
     /** The list containing the difficulties. */
     private ArrayList<Integer> difficultySet;
+    
+    /** List containing the blocks. */
+    private ArrayList<Integer> blockSet;
     
     /** A measure of how many times the same side has been correct. */
     private int sameChoiceCorrect;
@@ -81,7 +95,9 @@ public class DotsPairGenerator {
         this.setLastWasLeft(false);
         this.setLastWasBig(false);
         this.difficultySet = new ArrayList<Integer>();
+        this.blockSet = new ArrayList<Integer>();
         this.fillDifficultySet();
+        this.fillBlockSet();
     }
     
     /**
@@ -131,6 +147,31 @@ public class DotsPairGenerator {
     }
     
     /**
+     * Fill the block set in a random manner.
+     */
+    private void fillBlockSet() {
+        ArrayList<Integer> tempSet = new ArrayList<Integer>();
+        tempSet.add(MORE_THAN_HALF_BLOCK);
+        tempSet.add(MORE_THAN_FIFTY_BLOCK);
+        tempSet.add(MORE_THAN_SIXTY_BLOCK);
+        tempSet.add(MORE_THAN_SEVENTYFIVE_BLOCK);
+        int size = tempSet.size();
+        for (int i = 0; i < size; i++) {
+            this.blockSet.add((Integer) tempSet.remove(randomGenerator.nextInt(tempSet.size())));
+            System.out.println(this.blockSet.toString());
+        }
+        this.blockMode = this.blockSet.get(0);
+    }
+    
+    /** 
+     * Get a new pair based on current mode. 
+     */
+    public void getNewModePair() {
+        double ratio = this.decideRatio();
+        this.getNewPair(ratio);
+    }
+    
+    /**
      * Get a new pair based on the current difficulty.
      */
     public void getNewDifficultyPair() {
@@ -145,15 +186,63 @@ public class DotsPairGenerator {
      */
     private int decideDifference() {
         switch (this.difficultyMode) {
-        case EASY_MODE:
-            return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + EASY_MODE_MIN;
-        case MEDIUM_MODE:
-            return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + MEDIUM_MODE_MIN;
-        case HARD_MODE:
-            return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + HARD_MODE_MIN;
+            case EASY_MODE:
+                return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + EASY_MODE_MIN;
+            case MEDIUM_MODE:
+                return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + MEDIUM_MODE_MIN;
+            case HARD_MODE:
+                return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + HARD_MODE_MIN;
         }
         System.err.println("Error on decideDifference");
         return 0;
+    }
+    
+    /**
+     * Decide the ratio between the sets of dots, based on current mode.
+     * @return
+     */
+    private double decideRatio() {
+        double increment = .05;
+        int numIncrements = 3;
+        double ratio = 0;
+        double randomVariation;
+        switch (this.blockMode) {
+            case MORE_THAN_HALF_BLOCK:
+                ratio = 0.5;
+                break;
+            case MORE_THAN_FIFTY_BLOCK:
+                ratio = 0.5;
+                break;
+            case MORE_THAN_SIXTY_BLOCK:
+                ratio = 0.6;
+                break;
+            case MORE_THAN_SEVENTYFIVE_BLOCK:
+                ratio = 0.75;
+                break;
+        }
+        randomVariation = increment * (randomGenerator.nextInt(numIncrements) + 1);
+        if (randomGenerator.nextBoolean()) {
+            ratio += randomVariation;
+        } else {
+            ratio -= randomVariation;
+        }
+        System.out.println("IDEAL RATIO: " + ratio);
+        return ratio;
+    }
+    
+    public void getNewPair(double ratio) {
+        int dotSetOne = randomGenerator.nextInt(7) + 6;
+        double idealDotSetTwo = dotSetOne * (1.0 / ratio);
+        System.out.println("IDEAL TWO: " + idealDotSetTwo);
+        int dotSetTwo = (int) Math.ceil(idealDotSetTwo);
+        double actualRatio = (double) dotSetOne / (double) dotSetTwo;
+        System.out.println("ACTUAL RATIO: " + actualRatio);
+        System.out.println("ONE: " + dotSetOne);
+        System.out.println("TWO: " + dotSetTwo);
+        if (randomGenerator.nextBoolean()) {
+            dotSetOne = swap(dotSetTwo, dotSetTwo = dotSetOne);
+        }
+        this.checkAndSet(dotSetOne, dotSetTwo);
     }
     
     /**
@@ -316,6 +405,11 @@ public class DotsPairGenerator {
         return x;
     }
     
+    public void changeBlock() {
+        this.blockSet.remove(0);
+        this.blockMode = this.blockSet.get(0);
+    }
+    
     public void setRandomDifficulty() {
         this.difficultyMode = this.randomGenerator.nextInt(NUM_MODES);
     }
@@ -378,5 +472,13 @@ public class DotsPairGenerator {
     
     public void incrementSameSizeCorrect() {
         this.sameSizeCorrect++;
+    }
+
+    public int getBlockMode() {
+        return blockMode;
+    }
+
+    public void setBlockMode(int blockMode) {
+        this.blockMode = blockMode;
     }
 }

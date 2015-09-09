@@ -1,6 +1,7 @@
 package controller;
 
 import java.net.URL;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import config.Config;
@@ -67,6 +68,9 @@ public class DotsGameController implements GameController {
     /** Integer representing each each background. */
     private static int backgroundNumber = 0;
     
+    /** Number of questions per block */
+    final private static int NUM_QUESTIONS_PER_BLOCK = 4;
+    
     /** Time between rounds in milliseconds. */
     static int TIME_BETWEEN_ROUNDS;
     
@@ -86,7 +90,10 @@ public class DotsGameController implements GameController {
     private GraphicsContext graphicsContextCanvas;
     
     /** Index of the current dots color in DOTS_COLORS */
-    private int currentColor;
+    private Color dotsColorOne;
+    private Color dotsColorTwo;
+    private String colorOne;
+    private String colorTwo;
     
     /** The subject. */
     private Player thePlayer;
@@ -118,11 +125,15 @@ public class DotsGameController implements GameController {
     
     private Object lock = new Object();
     
+    private int numRoundsIntoBlock;
+    
     /** Whether or not the user has provided feedback. */
     private static boolean feedback_given;
     
     /** Alternate reference to "this" to be used in inner methods */
     private DotsGameController gameController;
+    
+    private static boolean questionReversed;
     
     /** 
      * Constructor for the controller. There is only meant
@@ -138,11 +149,11 @@ public class DotsGameController implements GameController {
         this.gameController = this;
         this.dpg = new DotsPairGenerator();
         this.currentDotsPair = null;
-        this.currentColor = 0;
         this.theView = view;
         this.theScene = view.getScene();
         this.thePlayer = new Player();
         this.dataWriter = new DataWriter(this);
+        this.updateDotColors();
     }
     
     /** 
@@ -282,7 +293,7 @@ public class DotsGameController implements GameController {
             public void handle(KeyEvent event) {
                 if ((event.getCode() == KeyCode.F 
                         || event.getCode() == KeyCode.J) 
-                        && !feedback_given) {
+                        /*&& !feedback_given*/ && gameState == GameState.WAITING_FOR_RESPONSE_BLANK) {
                     gameController.handlePressForJ(event);
                 }
             }
@@ -318,12 +329,13 @@ public class DotsGameController implements GameController {
      */
     public void responseAndUpdate (
             KeyEvent e) {
+        this.numRoundsIntoBlock++;
         feedback_given = true;
         if (gameState == GameState.WAITING_FOR_RESPONSE_BLANK) {
             gameState = GameState.WAITING_BETWEEN_ROUNDS;
         }
         DotsPair dp = this.currentDotsPair;
-        boolean correct = GameLogic.checkAnswerCorrect(e, dp);
+        boolean correct = GameLogic.checkAnswerCorrect(e, dp, questionReversed);
         this.updatePlayer(correct);   
         this.feedbackSound(correct);
         this.dataWriter.grabData(this);
@@ -403,9 +415,9 @@ public class DotsGameController implements GameController {
                 
                 graphicsContextCanvas = theView.getDotsCanvas().getGraphicsContext2D();
                 
-                clearRound();    
+                clearRound();
                 setOptions();
-
+                
                 responseTimeMetric = System.nanoTime();
                 theView.getGetReadyBox().setVisible(false);
             }
@@ -421,8 +433,45 @@ public class DotsGameController implements GameController {
     public void prepareNextRound() {
         this.waitBeforeNextRoundAndUpdate(TIME_BETWEEN_ROUNDS);  
         this.checkIfDone();
+        this.checkIfBlockDone();
     }
     
+    private void checkIfBlockDone() {
+        if (this.numRoundsIntoBlock >= NUM_QUESTIONS_PER_BLOCK) {
+            this.numRoundsIntoBlock = 0;
+            this.dpg.changeBlock();
+            this.updateDotColors();
+        }
+    }
+    
+    private void updateDotColors() {
+        switch (this.dpg.getBlockMode()) {
+        case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
+            dotsColorOne = Color.BLUE;
+            dotsColorTwo = Color.YELLOW;
+            colorOne = "Blue";
+            colorTwo = "Yellow";
+            break;
+        case DotsPairGenerator.MORE_THAN_FIFTY_BLOCK:
+            dotsColorOne = Color.GREEN;
+            dotsColorTwo = Color.RED;
+            colorOne = "Green";
+            colorTwo = "Red";
+            break;
+        case DotsPairGenerator.MORE_THAN_SIXTY_BLOCK:
+            dotsColorOne = Color.PURPLE;
+            dotsColorTwo = Color.ORANGE;
+            colorOne = "Purple";
+            colorTwo = "Orange";
+            break;
+        case DotsPairGenerator.MORE_THAN_SEVENTYFIVE_BLOCK:
+            dotsColorOne = Color.CYAN;
+            dotsColorTwo = Color.BROWN;
+            colorOne = "Cyan";
+            colorTwo = "Brown";
+            break;
+        }
+    }
     /** 
      * Check if subject has completed practice or assessment.
      */
@@ -454,16 +503,42 @@ public class DotsGameController implements GameController {
         theView.setPracticeCompleteScreen();
         theView.getScene().setOnKeyPressed(null);
         backgroundNumber = 0;
+        state = CurrentState.PRACTICE_FINISHED;
     }
     
     /**
      * Clears the options.
      */
     public void clearRound() {
+        theView.getDotsCanvas().setOpacity(0);
+        //Used conditional to force-fix weird bug where question pops up while loading first non-practice question.
+        if (!theView.getGetReadyBox().isVisible()) {
+            setTheQuestion();
+        }
         graphicsContextCanvas.setFill(CANVAS_COLOR);
         graphicsContextCanvas.fillRect(0, 0, theView.getDotsCanvas().getWidth(),theView.getDotsCanvas().getHeight());
     }
 
+    private void setTheQuestion() {
+        Random randomGenerator = new Random();
+        String colorOneName = this.colorOne;
+        String colorTwoName = this.colorTwo;
+        if (randomGenerator.nextBoolean()) {
+            String temp = colorOneName;
+            colorOneName = colorTwoName;
+            colorTwoName = temp;
+            questionReversed = true;
+        } else {
+            questionReversed = false;
+        }
+        switch (this.dpg.getBlockMode()) {
+        case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
+            theView.getQuestion().setText("Is " + colorOneName + " more than " + colorTwoName + "?");
+            break;
+        default:
+            theView.getQuestion().setText("Is " + colorOneName + " more than " + colorTwoName + "?");
+        }    
+    }
     /**
      * Wait for a certain time and then set the next round.
      */
@@ -511,7 +586,7 @@ public class DotsGameController implements GameController {
      * Prepare the next pair.
      */
     private void prepareNextPair() {
-        dpg.getNewDifficultyPair();
+        dpg.getNewModePair();
         this.currentDotsPair = dpg.getDotsPair();
     }
     
@@ -519,13 +594,14 @@ public class DotsGameController implements GameController {
      * Show the choices.
      */
     private void paintDots() {
+        theView.getQuestion().setText("");
         theView.getDotsCanvas().setOpacity(1.0);
         
         DotSet dotSetOne = this.currentDotsPair.getDotSetOne();
         DotSet dotSetTwo = this.currentDotsPair.getDotSetTwo();
-        graphicsContextCanvas.setFill(Color.GREEN);
+        graphicsContextCanvas.setFill(dotsColorOne);
         this.paintDotSet(dotSetOne, graphicsContextCanvas);
-        graphicsContextCanvas.setFill(Color.ORANGE);
+        graphicsContextCanvas.setFill(dotsColorTwo);
         this.paintDotSet(dotSetTwo, graphicsContextCanvas);
     }
     

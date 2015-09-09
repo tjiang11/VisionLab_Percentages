@@ -47,7 +47,7 @@ public final class SetUp {
     static final int NUM_STARS = 100;
     /** Positions of the choices the subject can pick. */
     static final int DOTS_CANVAS_X = (int) (SCREEN_WIDTH * .25);
-    static final int DOTS_CANVAS_Y = (int) (SCREEN_WIDTH * .15);
+    static final int DOTS_CANVAS_Y = (int) (SCREEN_HEIGHT * .15);
     public static final int DOTS_CANVAS_WIDTH = (int) (SCREEN_WIDTH * .5);
     public static final int DOTS_CANVAS_HEIGHT = (int) (SCREEN_HEIGHT * .7);
    
@@ -187,8 +187,11 @@ public final class SetUp {
         view.setPractice(new Label(Strings.PRACTICE_SP));
         view.getPractice().setFont(new Font("Tahoma", 50));
 
+        view.setQuestion(new Label());
+        view.getQuestion().setFont(new Font("Tahoma", 50));
+
         view.getLayout().getChildren().setAll(view.getGetReadyBox(),
-                view.getDotsCanvas(), view.getPractice());
+                view.getDotsCanvas(), view.getPractice(), view.getQuestion());
         
         view.getGetReadyBox().setPrefHeight(SCREEN_HEIGHT * .1);
         view.getGetReadyBox().setPrefWidth(SCREEN_WIDTH * .4);    
@@ -200,6 +203,12 @@ public final class SetUp {
         view.getPractice().setAlignment(Pos.CENTER);        
         view.getPractice().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getPractice().getPrefWidth() / 2));
         view.getPractice().setLayoutY(SetUp.SCREEN_HEIGHT * .04);
+        
+        view.getQuestion().setPrefHeight(SCREEN_HEIGHT * .2);
+        view.getQuestion().setPrefWidth(SCREEN_WIDTH * .6);
+        view.getQuestion().setAlignment(Pos.CENTER);
+        view.getQuestion().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getQuestion().getPrefWidth() / 2));
+        view.getQuestion().setLayoutY(SetUp.SCREEN_HEIGHT * .35);
         
         view.getScene().setCursor(Cursor.NONE);
     }
