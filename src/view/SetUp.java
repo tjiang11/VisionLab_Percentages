@@ -205,7 +205,7 @@ public final class SetUp {
         view.getPractice().setLayoutY(SetUp.SCREEN_HEIGHT * .04);
         
         view.getQuestion().setPrefHeight(SCREEN_HEIGHT * .2);
-        view.getQuestion().setPrefWidth(SCREEN_WIDTH * .6);
+        view.getQuestion().setPrefWidth(SCREEN_WIDTH * .8);
         view.getQuestion().setAlignment(Pos.CENTER);
         view.getQuestion().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getQuestion().getPrefWidth() / 2));
         view.getQuestion().setLayoutY(SetUp.SCREEN_HEIGHT * .35);

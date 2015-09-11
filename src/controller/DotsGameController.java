@@ -69,7 +69,9 @@ public class DotsGameController implements GameController {
     private static int backgroundNumber = 0;
     
     /** Number of questions per block */
-    final private static int NUM_QUESTIONS_PER_BLOCK = 4;
+    final public static int NUM_QUESTIONS_PER_BLOCK = 10;
+    
+    final private static int MAX_TIMES_SAME_QUESTION_ASKED = 3;
     
     /** Time between rounds in milliseconds. */
     static int TIME_BETWEEN_ROUNDS;
@@ -95,10 +97,15 @@ public class DotsGameController implements GameController {
     private String colorOne;
     private String colorTwo;
     
+
+    
     /** The subject. */
     private Player thePlayer;
     /** The current DotsPair being evaluated by the subject. */
     private DotsPair currentDotsPair;
+    
+    /** Number of times the same question has been asked in a row. */
+    private int numSameQuestionAskedInARow;
     
     /** Used to measure response time. */
     private static long responseTimeMetric;
@@ -133,7 +140,9 @@ public class DotsGameController implements GameController {
     /** Alternate reference to "this" to be used in inner methods */
     private DotsGameController gameController;
     
+    /** Whether the question is reversed or not from the standard setting. */
     private static boolean questionReversed;
+    private static boolean lastQuestionReversed;
     
     /** 
      * Constructor for the controller. There is only meant
@@ -335,7 +344,7 @@ public class DotsGameController implements GameController {
             gameState = GameState.WAITING_BETWEEN_ROUNDS;
         }
         DotsPair dp = this.currentDotsPair;
-        boolean correct = GameLogic.checkAnswerCorrect(e, dp, questionReversed);
+        boolean correct = GameLogic.checkAnswerCorrect(e, dp, questionReversed, dpg.getBlockMode());
         this.updatePlayer(correct);   
         this.feedbackSound(correct);
         this.dataWriter.grabData(this);
@@ -520,10 +529,9 @@ public class DotsGameController implements GameController {
     }
 
     private void setTheQuestion() {
-        Random randomGenerator = new Random();
         String colorOneName = this.colorOne;
         String colorTwoName = this.colorTwo;
-        if (randomGenerator.nextBoolean()) {
+        if (this.currentDotsPair.isSwapped()) {
             String temp = colorOneName;
             colorOneName = colorTwoName;
             colorTwoName = temp;
@@ -531,19 +539,63 @@ public class DotsGameController implements GameController {
         } else {
             questionReversed = false;
         }
+        this.checkIfSameQuestion();
+        if (overMaxSameQuestions()) {
+            String temp = colorOneName;
+            colorOneName = colorTwoName;
+            colorTwoName = temp;
+        }
         switch (this.dpg.getBlockMode()) {
         case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
             theView.getQuestion().setText("Is " + colorOneName + " more than " + colorTwoName + "?");
+            break;
+        case DotsPairGenerator.MORE_THAN_FIFTY_BLOCK:
+            theView.getQuestion().setText("Is " + colorOneName + " more than 50% of the total?");
+            break;
+        case DotsPairGenerator.MORE_THAN_SIXTY_BLOCK:
+            theView.getQuestion().setText("Is " + colorOneName + " more than 60% of the total?");
+            break;
+        case DotsPairGenerator.MORE_THAN_SEVENTYFIVE_BLOCK:
+            theView.getQuestion().setText("Is " + colorOneName + " more than 75% of the total?");
             break;
         default:
             theView.getQuestion().setText("Is " + colorOneName + " more than " + colorTwoName + "?");
         }    
     }
+    
+    /** Check if the same question is being asked. */
+    private void checkIfSameQuestion() {
+        if (questionReversed) {
+            if (lastQuestionReversed) {
+                this.numSameQuestionAskedInARow++;
+            } else {
+                this.numSameQuestionAskedInARow = 0;
+            }
+            lastQuestionReversed = true;
+        } else {
+            if (lastQuestionReversed) {
+                this.numSameQuestionAskedInARow = 0;
+            } else {
+                this.numSameQuestionAskedInARow++;
+            }
+            lastQuestionReversed = false;
+        }
+    }
+    
+    private boolean overMaxSameQuestions() {
+        if (this.numSameQuestionAskedInARow >= MAX_TIMES_SAME_QUESTION_ASKED) {
+            this.numSameQuestionAskedInARow = 0;
+            toggleQuestionReversed();
+            toggleLastQuestionReversed();
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Wait for a certain time and then set the next round.
      */
     public void waitBeforeNextRoundAndUpdate(int waitTime) {
-        
         Task<Void> sleeper = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -655,6 +707,22 @@ public class DotsGameController implements GameController {
         logger.info("Response time: " + responseTime / 1000000000.0);
     }
 
+    private void toggleQuestionReversed() {
+        if (questionReversed) {
+            questionReversed = false;
+        } else {
+            questionReversed = true;
+        }
+    }
+    
+    private void toggleLastQuestionReversed() {
+        if (lastQuestionReversed) {
+            lastQuestionReversed = false;
+        } else {
+            lastQuestionReversed = true;
+        }
+    }
+    
     public Player getThePlayer() {
         return thePlayer;
     }

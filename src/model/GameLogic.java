@@ -18,21 +18,62 @@ public final class GameLogic {
      * @param dotsPair The current AlphaPair being evaluated.
      * @return correct True if correct, false otherwise.
      */
-    public static boolean checkAnswerCorrect(KeyEvent e, DotsPair dotsPair, boolean questionReversed) {
+    public static boolean checkAnswerCorrect(KeyEvent e, DotsPair dotsPair, boolean questionReversed, int blockMode) {
+        boolean yesCorrect = false;
+        switch (blockMode) {
+        case DotsPairGenerator.MORE_THAN_FIFTY_BLOCK:
+        case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
+            if (dotsPair.getDotSetOne().getTotalNumDots() > dotsPair.getDotSetTwo().getTotalNumDots()) {
+                if (!questionReversed) {
+                    yesCorrect = true;
+                } else {
+                    yesCorrect = false;
+                }
+            } else {
+                if (!questionReversed) {
+                    yesCorrect = false;
+                } else {
+                    yesCorrect = true;
+                }
+            }
+            break;
+        case DotsPairGenerator.MORE_THAN_SIXTY_BLOCK:
+            if (!questionReversed 
+                    && (double) dotsPair.getDotSetOne().getTotalNumDots() / (dotsPair.getDotSetOne().getTotalNumDots() 
+                            + dotsPair.getDotSetTwo().getTotalNumDots()) > .6) {
+                yesCorrect = true;
+            } else if (questionReversed
+                    && (double) dotsPair.getDotSetTwo().getTotalNumDots() / (dotsPair.getDotSetOne().getTotalNumDots() 
+                        + dotsPair.getDotSetTwo().getTotalNumDots()) > .6){
+                yesCorrect = true;
+            } else {
+                yesCorrect = false;
+                System.out.println("false");
+            }
+            break;
+        case DotsPairGenerator.MORE_THAN_SEVENTYFIVE_BLOCK:
+            if (!questionReversed 
+                    && (double) dotsPair.getDotSetOne().getTotalNumDots() / (dotsPair.getDotSetOne().getTotalNumDots() 
+                            + dotsPair.getDotSetTwo().getTotalNumDots()) > .75) {
+                yesCorrect = true;
+            } else if (questionReversed
+                    && (double) dotsPair.getDotSetTwo().getTotalNumDots() / (dotsPair.getDotSetOne().getTotalNumDots() 
+                        + dotsPair.getDotSetTwo().getTotalNumDots()) > .75){
+                yesCorrect = true;
+            } else {
+                yesCorrect = false;
+                System.out.println("false");
+            }
+            break;
+        }
+        
         boolean correct;
-        if ((dotsPair.isLeftCorrect() && e.getCode() == KeyCode.F)
-                || !dotsPair.isLeftCorrect() && e.getCode() == KeyCode.J) {
+        if ((yesCorrect && e.getCode() == KeyCode.F)
+                || !yesCorrect && e.getCode() == KeyCode.J) {
             correct = true;
         } else {  
             correct = false;     
         } 
-        if (questionReversed) {
-            if (correct) {
-                correct = false;
-            } else {
-                correct = true;
-            }
-        }
         return correct;
     }
 }

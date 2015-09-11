@@ -5,6 +5,8 @@ import java.util.Random;
 
 import com.sun.media.jfxmedia.logging.Logger;
 
+import controller.DotsGameController;
+
 /**
  * Generates DotsPairs with random numbers of dots.
  * 
@@ -71,6 +73,9 @@ public class DotsPairGenerator {
     /** List containing the blocks. */
     private ArrayList<Integer> blockSet;
     
+    /** List containing Ratios for the current block. */
+    private ArrayList<Ratio> ratiosBucket;
+    
     /** A measure of how many times the same side has been correct. */
     private int sameChoiceCorrect;
     
@@ -96,6 +101,7 @@ public class DotsPairGenerator {
         this.setLastWasBig(false);
         this.difficultySet = new ArrayList<Integer>();
         this.blockSet = new ArrayList<Integer>();
+        this.ratiosBucket = new ArrayList<Ratio>();
         this.fillDifficultySet();
         this.fillBlockSet();
     }
@@ -167,7 +173,7 @@ public class DotsPairGenerator {
      * Get a new pair based on current mode. 
      */
     public void getNewModePair() {
-        double ratio = this.decideRatio();
+        Ratio ratio = this.decideRatio();
         this.getNewPair(ratio);
     }
     
@@ -197,52 +203,74 @@ public class DotsPairGenerator {
         return 0;
     }
     
-    /**
-     * Decide the ratio between the sets of dots, based on current mode.
-     * @return
-     */
-    private double decideRatio() {
-        double increment = .05;
-        int numIncrements = 3;
-        double ratio = 0;
-        double randomVariation;
-        switch (this.blockMode) {
-            case MORE_THAN_HALF_BLOCK:
-                ratio = 0.5;
-                break;
-            case MORE_THAN_FIFTY_BLOCK:
-                ratio = 0.5;
-                break;
-            case MORE_THAN_SIXTY_BLOCK:
-                ratio = 0.6;
-                break;
-            case MORE_THAN_SEVENTYFIVE_BLOCK:
-                ratio = 0.75;
-                break;
+    private Ratio decideRatio() {
+        if (this.ratiosBucket.isEmpty()) {
+            fillRatiosBucket();
         }
-        randomVariation = increment * (randomGenerator.nextInt(numIncrements) + 1);
-        if (randomGenerator.nextBoolean()) {
-            ratio += randomVariation;
-        } else {
-            ratio -= randomVariation;
-        }
-        System.out.println("IDEAL RATIO: " + ratio);
+        Ratio ratio = this.ratiosBucket.remove(randomGenerator.nextInt(this.ratiosBucket.size()));
         return ratio;
     }
     
-    public void getNewPair(double ratio) {
-        int dotSetOne = randomGenerator.nextInt(7) + 6;
-        double idealDotSetTwo = dotSetOne * (1.0 / ratio);
-        System.out.println("IDEAL TWO: " + idealDotSetTwo);
-        int dotSetTwo = (int) Math.ceil(idealDotSetTwo);
-        double actualRatio = (double) dotSetOne / (double) dotSetTwo;
-        System.out.println("ACTUAL RATIO: " + actualRatio);
-        System.out.println("ONE: " + dotSetOne);
-        System.out.println("TWO: " + dotSetTwo);
-        if (randomGenerator.nextBoolean()) {
-            dotSetOne = swap(dotSetTwo, dotSetTwo = dotSetOne);
+    private void fillRatiosBucket() {
+        switch (this.blockMode) {
+        case MORE_THAN_FIFTY_BLOCK:
+        case MORE_THAN_HALF_BLOCK:
+            for (int i = 0; i < DotsGameController.NUM_QUESTIONS_PER_BLOCK / 4; i++) {
+                this.ratiosBucket.add(new Ratio(2,1));
+                this.ratiosBucket.add(new Ratio(3,1));
+                this.ratiosBucket.add(new Ratio(1,2));
+                this.ratiosBucket.add(new Ratio(1,3));
+            }
+            break;
+        case MORE_THAN_SIXTY_BLOCK:
+            for (int i = 0; i < DotsGameController.NUM_QUESTIONS_PER_BLOCK / 4; i++) {
+                this.ratiosBucket.add(new Ratio(2,1));
+                this.ratiosBucket.add(new Ratio(3,1));
+                this.ratiosBucket.add(new Ratio(5,4));
+                this.ratiosBucket.add(new Ratio(2,2));
+            }
+            break;
+        case MORE_THAN_SEVENTYFIVE_BLOCK:
+            for (int i = 0; i < DotsGameController.NUM_QUESTIONS_PER_BLOCK / 4; i++) {
+                this.ratiosBucket.add(new Ratio(7,5));
+                this.ratiosBucket.add(new Ratio(8,5));
+                this.ratiosBucket.add(new Ratio(5,1));
+                this.ratiosBucket.add(new Ratio(6,1));
+            }
+            break;
         }
-        this.checkAndSet(dotSetOne, dotSetTwo);
+        System.out.println(this.ratiosBucket.toString());
+    }
+    
+    private void getNewPair(Ratio ratio) {
+        int scaleUp = randomGenerator.nextInt(5);
+        int minDots = 15;
+        int maxDots = 45;
+        int ratioNumOne = ratio.getNumOne();
+        int ratioNumTwo = ratio.getNumTwo();
+        int numDotsOne = ratio.getNumOne();
+        int numDotsTwo = ratio.getNumTwo();
+        numDotsOne *= scaleUp;
+        numDotsTwo *= scaleUp;
+        while (numDotsOne + numDotsTwo < minDots) {
+            numDotsOne += ratioNumOne;
+            numDotsTwo += ratioNumTwo;
+        }
+        while (numDotsOne + numDotsTwo > maxDots) {
+            numDotsOne -= ratioNumOne;
+            numDotsTwo -= ratioNumTwo;
+        }
+        boolean swap = false;
+        if (randomGenerator.nextBoolean()) {
+            numDotsOne = swap(numDotsTwo, numDotsTwo = numDotsOne);
+            swap = true;
+        }
+        this.checkAndSet(numDotsOne, numDotsTwo);
+        this.dotsPair.determineWhichSideCorrect(this.blockMode);
+        this.dotsPair.setSwapped(swap);
+        System.out.println(numDotsOne + " " + numDotsTwo);
+        System.out.println((double) numDotsOne / (numDotsOne + numDotsTwo));
+        System.out.println((double) numDotsTwo / (numDotsOne + numDotsTwo));
     }
     
     /**
@@ -408,6 +436,7 @@ public class DotsPairGenerator {
     public void changeBlock() {
         this.blockSet.remove(0);
         this.blockMode = this.blockSet.get(0);
+        this.ratiosBucket.clear();
     }
     
     public void setRandomDifficulty() {

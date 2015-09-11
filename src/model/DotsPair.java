@@ -39,6 +39,8 @@ public class DotsPair {
     
     private Random randomGenerator = new Random();
     
+    private boolean swapped;
+    
     /** 
      * Constructor for DotsPair.
      * @param numDotsOne The number of dots in the first set.
@@ -75,6 +77,34 @@ public class DotsPair {
         EQUAL_AREAS_ONLY = Config.getPropertyBoolean("equal.areas.only");
         INVERSE_AREAS_ONLY = Config.getPropertyBoolean("inverse.areas.only");
         AVERAGE_RADIUS_CONTROL = Config.getPropertyBoolean("average.radius.control");
+    }
+    
+    
+    public void determineWhichSideCorrect(int blockMode) {
+        int numDotsOne = this.dotSetOne.getTotalNumDots();
+        int numDotsTwo = this.dotSetTwo.getTotalNumDots();
+        switch (blockMode) {
+        case DotsPairGenerator.MORE_THAN_FIFTY_BLOCK:
+        case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
+            if ((double) numDotsOne / (numDotsOne + numDotsTwo) > .5) {
+                setLeftCorrect(true);
+            } else {
+                setLeftCorrect(false);
+            }
+            break;
+        case DotsPairGenerator.MORE_THAN_SIXTY_BLOCK: 
+            if ((double) numDotsOne / (numDotsOne + numDotsTwo) > .6) {
+                setLeftCorrect(true);
+            } else {
+                setLeftCorrect(false);
+            }
+        case DotsPairGenerator.MORE_THAN_SEVENTYFIVE_BLOCK:
+            if ((double) numDotsOne / (numDotsOne + numDotsTwo) > .75) {
+                setLeftCorrect(true);
+            } else {
+                setLeftCorrect(false);
+            }
+        }
     }
     
     /**
@@ -190,5 +220,13 @@ public class DotsPair {
 
     public void setControlType(ControlType controlType) {
         this.controlType = controlType;
+    }
+
+    public boolean isSwapped() {
+        return swapped;
+    }
+
+    public void setSwapped(boolean swapped) {
+        this.swapped = swapped;
     }
 }
