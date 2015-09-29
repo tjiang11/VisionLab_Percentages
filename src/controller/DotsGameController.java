@@ -279,13 +279,15 @@ public class DotsGameController implements GameController {
      * Sets the game screen and the state to GAMEPLAY from PRACTICE. Removes the "Practice" Label.
      * Resets the player's data.
      */
-    public void setPracticeCompleteHandlers() {
+    public void setPracticeCompleteHandlers(CurrentState isPractice) {
         this.theView.getStartAssessment().setOnAction( e-> {
             theView.setGameScreen();
             theView.getPractice().setVisible(false);
             state = CurrentState.GAMEPLAY;
             gameState = GameState.WAITING_FOR_RESPONSE_VISIBLE;
-            this.resetPlayer();
+            if (isPractice == CurrentState.PRACTICE) {
+                this.resetPlayer();
+            }
         });
     }
     
@@ -390,19 +392,6 @@ public class DotsGameController implements GameController {
         currentPlayer.incrementNumRounds();
     }
     
-//Need to re-add feedback sound
-    
-    /** Play sound */
-    private void playSound(String soundFile, double rate) {
-        URL sound = getClass().getResource("/res/sounds/" + soundFile);
-        Media media = new Media(sound.toString());
-        MediaPlayer player = new MediaPlayer(media);
-        player.setAutoPlay(true);
-        player.setRate(rate);
-        MediaView mediaView = new MediaView(player);
-        theView.getLayout().getChildren().add(mediaView);
-    }
-    
     /** If user inputs correct answer play positive feedback sound,
      * if not then play negative feedback sound.
      * @param feedbackSoundFileUrl the File Url of the Sound to be played.
@@ -476,8 +465,8 @@ public class DotsGameController implements GameController {
      */
     public void prepareNextRound() {
         this.showPressSpaceToContinue(); 
-        this.checkIfDone();
         this.checkIfBlockDone();
+        this.checkIfDone();
     }
     
     private void checkIfBlockDone() {
@@ -486,6 +475,7 @@ public class DotsGameController implements GameController {
             this.numRoundsIntoBlock = 0;
             this.dpg.changeBlock();
             this.updateDotColors();
+            theView.setBlockCompleteScreen(dpg.getBlockMode());
         }
     }
     
@@ -521,10 +511,10 @@ public class DotsGameController implements GameController {
      * Check if subject has completed practice or assessment.
      */
     private void checkIfDone() {
+        System.out.println(thePlayer.getNumRounds());
         if (thePlayer.getNumRounds() >= NUM_ROUNDS) {
             this.finishGame();
-        }
-        if (state == CurrentState.PRACTICE && thePlayer.getNumRounds() >= NUM_PRACTICE_ROUNDS) {
+        } else if (state == CurrentState.PRACTICE && thePlayer.getNumRounds() >= NUM_PRACTICE_ROUNDS) {
             this.finishPractice();
         }
     } 

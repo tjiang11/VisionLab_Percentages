@@ -1,4 +1,5 @@
 package view;
+import controller.CurrentState;
 import util.Strings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -148,7 +149,7 @@ public final class SetUp {
      * @param view The graphical user interface.
      * @return scene the Scene containing the elements of this scene.
      */
-    public static void setUpPracticeCompleteScreen(GameGUI view, int blockMode) {  
+    public static void setUpPracticeCompleteScreen(GameGUI view, int blockMode, CurrentState state) {  
         String question = null;
         switch (blockMode) {
         case 0:
@@ -164,8 +165,17 @@ public final class SetUp {
             question = "Is Cyan more than 75% of the total?";
             break;
         }
-        view.setPracticeComplete(new Text(Strings.PRACTICE_COMPLETE_MESSAGE_EN + "\n"
-                + "In the first block, the question you will be asked is: \n\n" +
+        String blockOrPracticeComplete = null;
+        String firstOrNext = null;
+        if (state == CurrentState.PRACTICE) {
+            firstOrNext = " first ";
+            blockOrPracticeComplete = Strings.PRACTICE_COMPLETE_MESSAGE_EN;
+        } else {
+            firstOrNext = " next ";
+            blockOrPracticeComplete = "Block Complete.";
+        }
+        view.setPracticeComplete(new Text(blockOrPracticeComplete + "\n"
+                + "In the" + firstOrNext + "block, the question you will be asked is: \n\n" +
                 question));
         view.getPracticeComplete().setTextAlignment(TextAlignment.CENTER);
         view.getPracticeComplete().setFont(new Font("Tahoma", 50));
@@ -277,7 +287,7 @@ public final class SetUp {
         view.getDotsCanvas().setLayoutX(DOTS_CANVAS_X);
         view.getDotsCanvas().setLayoutY(DOTS_CANVAS_Y);
     }
-
+    
     /**
      * Set up the finish screen.
      * @param view The graphical user interface.

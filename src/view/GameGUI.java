@@ -1,5 +1,6 @@
 package view;
 
+import controller.CurrentState;
 import controller.DotsGameController;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -152,10 +153,15 @@ public class GameGUI {
      * Sets the screen where user has finished practice trials and is about to begin assessment.
      */
     public void setPracticeCompleteScreen(int blockMode) {
-        SetUp.setUpPracticeCompleteScreen(this, blockMode);
-        this.DGC.setPracticeCompleteHandlers();
+        SetUp.setUpPracticeCompleteScreen(this, blockMode, CurrentState.PRACTICE);
+        this.DGC.setPracticeCompleteHandlers(CurrentState.PRACTICE);
     }
 
+    public void setBlockCompleteScreen(int blockMode) {
+        SetUp.setUpPracticeCompleteScreen(this, blockMode, CurrentState.GAMEPLAY);
+        this.DGC.setPracticeCompleteHandlers(CurrentState.GAMEPLAY);
+    }
+    
     /**
      * Sets the game screen where subject will be presented with two letters.
      * @param stage The user interface stage.
