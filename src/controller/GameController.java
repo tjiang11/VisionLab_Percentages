@@ -9,9 +9,11 @@ package controller;
  * 
  */
 public interface GameController {
+    /** Number of questions per block */
+    public static final int NUM_QUESTIONS_PER_BLOCK = 20;
     
     /** Number of rounds. One round is one pair of options. */
-    public static final int NUM_ROUNDS = 80;
+    public static final int NUM_ROUNDS = NUM_QUESTIONS_PER_BLOCK * 4;
     
     /** Number of practice rounds. */
     public static final int NUM_PRACTICE_ROUNDS = 4;
@@ -29,12 +31,7 @@ public interface GameController {
      * Clears the options.
      */
     void clearRound();
-    
-    /**
-     * Wait for a certain time and then set the next round.
-     */
-    void waitBeforeNextRoundAndUpdate(int waitTime);
-    
+        
     /**
      * Set the next round's choices.
      */

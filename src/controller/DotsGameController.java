@@ -10,9 +10,6 @@ import model.DotsPair;
 import model.DotsPairGenerator;
 import model.GameLogic;
 import model.Player;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -26,7 +23,6 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
-import javafx.util.Duration;
 import view.GameGUI;
 
 /**
@@ -56,7 +52,7 @@ public class DotsGameController implements GameController {
     
     private static Logger logger = Logger.getLogger("mylog");
     
-    final static Color CANVAS_COLOR = Color.BEIGE;
+    final static Color CANVAS_COLOR = Color.GRAY;
     final static Color[] DOT_COLORS = {Color.GREEN, Color.BLUE, Color.RED, Color.GOLDENROD, Color.DARKMAGENTA, Color.DEEPSKYBLUE};
     
     /** Punish for wrong answers */
@@ -65,14 +61,12 @@ public class DotsGameController implements GameController {
     /** Time in milliseconds for the player to get ready after pressing start */
     final static int GET_READY_TIME = 2000;
     
+    /** Time in milliseconds to show mask */
+    final static int MASK_TIME = 100;
+    
     /** Integer representing each each background. */
     private static int backgroundNumber = 0;
-    
-    /** Number of questions per block */
-    final public static int NUM_QUESTIONS_PER_BLOCK = 10;
-    
-    final private static int MAX_TIMES_SAME_QUESTION_ASKED = 3;
-    
+       
     /** Time between rounds in milliseconds. */
     static int TIME_BETWEEN_ROUNDS;
     
@@ -97,16 +91,16 @@ public class DotsGameController implements GameController {
     private String colorOne;
     private String colorTwo;
     
-
-    
+    private int lastBlock;
+    /** Whether "Yes" is correct or not */
+    private boolean yesCorrect;
+    /** Whether F is for "Yes" or not */
+    private boolean FforTrue;
     /** The subject. */
     private Player thePlayer;
     /** The current DotsPair being evaluated by the subject. */
     private DotsPair currentDotsPair;
-    
-    /** Number of times the same question has been asked in a row. */
-    private int numSameQuestionAskedInARow;
-    
+        
     /** Used to measure response time. */
     private static long responseTimeMetric;
     
@@ -127,6 +121,12 @@ public class DotsGameController implements GameController {
          * already been hidden after the flash time has passed. */
         WAITING_FOR_RESPONSE_BLANK,
 
+        /** Displaying mask */
+        MASK,
+        
+        /** Waiting for the player to press space to continue */
+        PRESS_SPACE_TO_CONTINUE,
+        
         NONE
     }
     
@@ -139,11 +139,7 @@ public class DotsGameController implements GameController {
     
     /** Alternate reference to "this" to be used in inner methods */
     private DotsGameController gameController;
-    
-    /** Whether the question is reversed or not from the standard setting. */
-    private static boolean questionReversed;
-    private static boolean lastQuestionReversed;
-    
+        
     /** 
      * Constructor for the controller. There is only meant
      * to be one instance of the controller. Attaches listener
@@ -163,6 +159,7 @@ public class DotsGameController implements GameController {
         this.thePlayer = new Player();
         this.dataWriter = new DataWriter(this);
         this.updateDotColors();
+        this.setFandJ();
     }
     
     /** 
@@ -172,6 +169,17 @@ public class DotsGameController implements GameController {
         new Config();
         FLASH_TIME = Config.getPropertyInt("flash.time");
         TIME_BETWEEN_ROUNDS = Config.getPropertyInt("time.between.rounds");
+    }
+    
+    private void setFandJ() {
+        Random random = new Random();
+        if (random.nextBoolean()) {
+            this.FforTrue = true;
+            System.out.println("F for true");
+        } else {
+            this.FforTrue = false;
+            System.out.println("J for true");
+        }
     }
     
     /**
@@ -307,6 +315,18 @@ public class DotsGameController implements GameController {
                 }
             }
         });
+        this.theScene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent key) {
+                if (key.getCode() == KeyCode.SPACE
+                        && gameState == GameState.PRESS_SPACE_TO_CONTINUE) {
+                    theView.getPressSpaceText().setText("");
+                    setOptions();
+                    gameState = GameState.WAITING_FOR_RESPONSE_VISIBLE;
+                }
+            }
+            
+        });
     }  
     
     /**
@@ -338,13 +358,16 @@ public class DotsGameController implements GameController {
      */
     public void responseAndUpdate (
             KeyEvent e) {
-        this.numRoundsIntoBlock++;
+        if (state != CurrentState.PRACTICE) {
+            this.numRoundsIntoBlock++;
+        }
         feedback_given = true;
         if (gameState == GameState.WAITING_FOR_RESPONSE_BLANK) {
             gameState = GameState.WAITING_BETWEEN_ROUNDS;
         }
         DotsPair dp = this.currentDotsPair;
-        boolean correct = GameLogic.checkAnswerCorrect(e, dp, questionReversed, dpg.getBlockMode());
+        this.setYesCorrect(GameLogic.checkWhichSideCorrect(dp, dpg.getBlockMode()));
+        boolean correct = GameLogic.checkAnswerCorrect(e, this.yesCorrect, this.FforTrue);
         this.updatePlayer(correct);   
         this.feedbackSound(correct);
         this.dataWriter.grabData(this);
@@ -397,6 +420,18 @@ public class DotsGameController implements GameController {
         new AudioClip(feedbackSoundFileUrl.toString()).play();
     }
     
+    private void setKeyGuides() {
+        if (this.FforTrue) {
+            theView.getLeftKeyGuide().setText("F = Yes");
+            theView.getRightKeyGuide().setText("J = No");
+        } else {
+            theView.getLeftKeyGuide().setText("F = No");
+            theView.getRightKeyGuide().setText("J = Yes");
+        }
+        theView.getLeftKeyGuide().setVisible(false);
+        theView.getRightKeyGuide().setVisible(false);
+    }
+    
     /**
      * Prepare the first round by making a load bar to 
      * let the subject prepare for the first question.
@@ -404,6 +439,7 @@ public class DotsGameController implements GameController {
      * Also sets up the canvases on which the dots will be painted.
      */
     public void prepareFirstRound() {
+        this.setKeyGuides();
         feedback_given = true;
         Task<Void> sleeper = new Task<Void>() {   
             @Override
@@ -424,7 +460,6 @@ public class DotsGameController implements GameController {
                 
                 graphicsContextCanvas = theView.getDotsCanvas().getGraphicsContext2D();
                 
-                clearRound();
                 setOptions();
                 
                 responseTimeMetric = System.nanoTime();
@@ -440,12 +475,13 @@ public class DotsGameController implements GameController {
      * waiting, and creating the next round.
      */
     public void prepareNextRound() {
-        this.waitBeforeNextRoundAndUpdate(TIME_BETWEEN_ROUNDS);  
+        this.showPressSpaceToContinue(); 
         this.checkIfDone();
         this.checkIfBlockDone();
     }
     
     private void checkIfBlockDone() {
+        this.lastBlock = this.dpg.getBlockMode();
         if (this.numRoundsIntoBlock >= NUM_QUESTIONS_PER_BLOCK) {
             this.numRoundsIntoBlock = 0;
             this.dpg.changeBlock();
@@ -500,8 +536,6 @@ public class DotsGameController implements GameController {
     private void finishGame() {
         theView.setFinishScreen(thePlayer.getNumCorrect(), backgroundNumber);
         theView.getScene().setOnKeyPressed(null);
-        this.playSound("Applause.mp3", 1.4);
-        this.playSound("Correct1.wav", 1.4);
     }
   
     /**
@@ -509,10 +543,11 @@ public class DotsGameController implements GameController {
      * then change the scene to the practice complete screen.
      */
     private void finishPractice() {
-        theView.setPracticeCompleteScreen();
+        theView.setPracticeCompleteScreen(dpg.getBlockMode());
         theView.getScene().setOnKeyPressed(null);
         backgroundNumber = 0;
         state = CurrentState.PRACTICE_FINISHED;
+        this.dpg.clearRatios();
     }
     
     /**
@@ -520,31 +555,17 @@ public class DotsGameController implements GameController {
      */
     public void clearRound() {
         theView.getDotsCanvas().setOpacity(0);
-        //Used conditional to force-fix weird bug where question pops up while loading first non-practice question.
-        if (!theView.getGetReadyBox().isVisible()) {
-            setTheQuestion();
-        }
         graphicsContextCanvas.setFill(CANVAS_COLOR);
         graphicsContextCanvas.fillRect(0, 0, theView.getDotsCanvas().getWidth(),theView.getDotsCanvas().getHeight());
+        
+        this.showMask();
     }
 
     private void setTheQuestion() {
+        theView.getLeftKeyGuide().setVisible(true);
+        theView.getRightKeyGuide().setVisible(true);
         String colorOneName = this.colorOne;
         String colorTwoName = this.colorTwo;
-        if (this.currentDotsPair.isSwapped()) {
-            String temp = colorOneName;
-            colorOneName = colorTwoName;
-            colorTwoName = temp;
-            questionReversed = true;
-        } else {
-            questionReversed = false;
-        }
-        this.checkIfSameQuestion();
-        if (overMaxSameQuestions()) {
-            String temp = colorOneName;
-            colorOneName = colorTwoName;
-            colorTwoName = temp;
-        }
         switch (this.dpg.getBlockMode()) {
         case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
             theView.getQuestion().setText("Is " + colorOneName + " more than " + colorTwoName + "?");
@@ -562,48 +583,18 @@ public class DotsGameController implements GameController {
             theView.getQuestion().setText("Is " + colorOneName + " more than " + colorTwoName + "?");
         }    
     }
-    
-    /** Check if the same question is being asked. */
-    private void checkIfSameQuestion() {
-        if (questionReversed) {
-            if (lastQuestionReversed) {
-                this.numSameQuestionAskedInARow++;
-            } else {
-                this.numSameQuestionAskedInARow = 0;
-            }
-            lastQuestionReversed = true;
-        } else {
-            if (lastQuestionReversed) {
-                this.numSameQuestionAskedInARow = 0;
-            } else {
-                this.numSameQuestionAskedInARow++;
-            }
-            lastQuestionReversed = false;
-        }
-    }
-    
-    private boolean overMaxSameQuestions() {
-        if (this.numSameQuestionAskedInARow >= MAX_TIMES_SAME_QUESTION_ASKED) {
-            this.numSameQuestionAskedInARow = 0;
-            toggleQuestionReversed();
-            toggleLastQuestionReversed();
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Wait for a certain time and then set the next round.
-     */
-    public void waitBeforeNextRoundAndUpdate(int waitTime) {
+
+    private void showMask() {
+        theView.getMask().setVisible(true);
         Task<Void> sleeper = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 int i = 0;
-                while (i < waitTime) {
+                logger.info(gameState.toString());
+                while (i < MASK_TIME) {
                     synchronized (lock) {
-                        if (gameState == GameState.WAITING_BETWEEN_ROUNDS) {
-                            this.updateProgress(i, waitTime); 
+                        if (gameState == GameState.MASK) {
+                            this.updateProgress(i, MASK_TIME); 
                             Thread.sleep(1);
                             i++;
                         }
@@ -615,15 +606,28 @@ public class DotsGameController implements GameController {
         sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent e) {
-                setOptions();
+                if (feedback_given) {
+                    DotsGameController.gameState = GameState.WAITING_BETWEEN_ROUNDS;
+                } else {
+                    DotsGameController.gameState = GameState.WAITING_FOR_RESPONSE_BLANK;
+                }
                 responseTimeMetric = System.nanoTime();
-                gameState = GameState.WAITING_FOR_RESPONSE_VISIBLE;
+                theView.getMask().setVisible(false); 
+                setTheQuestion();
             }
         });
         Thread sleeperThread = new Thread(sleeper);
         sleeperThread.start();
     }
-
+    
+    private void showPressSpaceToContinue() {
+        gameState = GameState.PRESS_SPACE_TO_CONTINUE;
+        theView.getQuestion().setText("");;
+        theView.getLeftKeyGuide().setVisible(false);
+        theView.getRightKeyGuide().setVisible(false);
+        theView.getPressSpaceText().setText("Press space to continue");
+    }
+    
     /**
      * Set and show the next round's choices.
      */
@@ -672,11 +676,7 @@ public class DotsGameController implements GameController {
             @Override
             public void handle(WorkerStateEvent event) {
                 gameController.clearRound();    
-                if (feedback_given) {
-                    DotsGameController.gameState = GameState.WAITING_BETWEEN_ROUNDS;
-                } else {
-                    DotsGameController.gameState = GameState.WAITING_FOR_RESPONSE_BLANK;
-                }
+                DotsGameController.gameState = GameState.MASK;
             }
         });
         new Thread(sleeper).start();
@@ -705,22 +705,6 @@ public class DotsGameController implements GameController {
         long responseTime = System.nanoTime() - responseTimeMetric;
         thePlayer.setResponseTime(responseTime);
         logger.info("Response time: " + responseTime / 1000000000.0);
-    }
-
-    private void toggleQuestionReversed() {
-        if (questionReversed) {
-            questionReversed = false;
-        } else {
-            questionReversed = true;
-        }
-    }
-    
-    private void toggleLastQuestionReversed() {
-        if (lastQuestionReversed) {
-            lastQuestionReversed = false;
-        } else {
-            lastQuestionReversed = true;
-        }
     }
     
     public Player getThePlayer() {
@@ -754,4 +738,37 @@ public class DotsGameController implements GameController {
     public void setTheScene(Scene scene) {
         this.theScene = scene;
     }
+
+    public boolean isYesCorrect() {
+        return yesCorrect;
+    }
+
+    public void setYesCorrect(boolean yesCorrect) {
+        this.yesCorrect = yesCorrect;
+    }
+
+    public int getLastBlock() {
+        return lastBlock;
+    }
+
+    public void setLastBlock(int lastBlock) {
+        this.lastBlock = lastBlock;
+    }
+    
+    public String getColorOne() {
+        return this.colorOne;
+    }
+    
+    public String getColorTwo() {
+        return this.colorTwo;
+    }
+    
+    public boolean isFforTrue() {
+        return FforTrue;
+    }
+
+    public void setFforTrue(boolean fforTrue) {
+        FforTrue = fforTrue;
+    }
+
 }

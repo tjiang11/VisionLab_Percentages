@@ -11,6 +11,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -46,9 +48,9 @@ public final class SetUp {
      * Game Screen. */
     static final int NUM_STARS = 100;
     /** Positions of the choices the subject can pick. */
-    static final int DOTS_CANVAS_X = (int) (SCREEN_WIDTH * .25);
+    static final int DOTS_CANVAS_X = (int) (SCREEN_WIDTH * .15);
     static final int DOTS_CANVAS_Y = (int) (SCREEN_HEIGHT * .15);
-    public static final int DOTS_CANVAS_WIDTH = (int) (SCREEN_WIDTH * .5);
+    public static final int DOTS_CANVAS_WIDTH = (int) (SCREEN_WIDTH * .7);
     public static final int DOTS_CANVAS_HEIGHT = (int) (SCREEN_HEIGHT * .7);
    
   
@@ -64,15 +66,15 @@ public final class SetUp {
      * @return The login scene.
      */
     public static void setUpLoginScreen(GameGUI view) {
-        Label labelID = new Label(Strings.ENTER_SUBJECT_ID_SP);
-        Label labelGender = new Label(Strings.PICK_YOUR_GENDER_SP);
-        Label labelAge = new Label(Strings.ENTER_AGE_SP);
+        Label labelID = new Label(Strings.ENTER_SUBJECT_ID_EN);
+        Label labelGender = new Label(Strings.PICK_YOUR_GENDER_EN);
+        Label labelAge = new Label(Strings.ENTER_AGE_EN);
         
-        view.setStart(new Button(Strings.START_SP));
+        view.setStart(new Button(Strings.START_EN));
         view.setEnterId(new TextField());
-        view.setFeedback(new Label(Strings.SUB_ID_FEEDBACK_SP));
-        view.setFeedbackGender(new Label(Strings.GENDER_FEEDBACK_SP));
-        view.setFeedbackAge(new Label(Strings.AGE_FEEDBACK_SP));
+        view.setFeedback(new Label(Strings.SUB_ID_FEEDBACK_EN));
+        view.setFeedbackGender(new Label(Strings.GENDER_FEEDBACK_EN));
+        view.setFeedbackAge(new Label(Strings.AGE_FEEDBACK_EN));
         view.getFeedback().setTextFill(Color.RED);
         view.getFeedbackGender().setTextFill(Color.RED);
         view.getFeedbackAge().setTextFill(Color.RED);
@@ -89,8 +91,8 @@ public final class SetUp {
 
         view.getLoginBox().setAlignment(Pos.CENTER);
         view.setPickGender(new ToggleGroup());
-        view.setPickFemale(new RadioButton(Strings.FEMALE_SP));
-        view.setPickMale(new RadioButton(Strings.MALE_SP));
+        view.setPickFemale(new RadioButton(Strings.FEMALE_EN));
+        view.setPickMale(new RadioButton(Strings.MALE_EN));
         HBox pickGenderBox = new HBox(25);
         pickGenderBox.getChildren().addAll(view.getPickFemale(), view.getPickMale());
         view.getPickFemale().setToggleGroup(view.getPickGender());
@@ -124,14 +126,14 @@ public final class SetUp {
         r.setOpacity(0.25);
         
         Text instructionsText = new Text();
-        instructionsText.setText(Strings.PRESS_NEXT_SP);
+        instructionsText.setText(Strings.PRESS_NEXT_EN);
         instructionsText.setTextAlignment(TextAlignment.CENTER);
         instructionsText.setLayoutX(SCREEN_WIDTH * .1);
         instructionsText.setLayoutY(SCREEN_HEIGHT * .4);
         instructionsText.setFont(new Font("Century Gothic", 55));
         instructionsText.setWrappingWidth(SCREEN_WIDTH * .8);
         
-        view.setNext(new Button(Strings.NEXT_SP));
+        view.setNext(new Button(Strings.NEXT_EN));
         view.getNext().setFont(new Font("Tahoma", 20));
         view.getNext().setPrefHeight(SCREEN_HEIGHT * .06);
         view.getNext().setPrefWidth(SCREEN_WIDTH * .1);
@@ -146,13 +148,30 @@ public final class SetUp {
      * @param view The graphical user interface.
      * @return scene the Scene containing the elements of this scene.
      */
-    public static void setUpPracticeCompleteScreen(GameGUI view) {       
-        view.setPracticeComplete(new Text(Strings.PRACTICE_COMPLETE_MESSAGE_SP));
+    public static void setUpPracticeCompleteScreen(GameGUI view, int blockMode) {  
+        String question = null;
+        switch (blockMode) {
+        case 0:
+            question = "Is Blue more than Yellow?";
+            break;
+        case 1:
+            question = "Is Green more than 50% of the total?";
+            break;
+        case 2:
+            question = "Is Purple more than 60% of the total?";
+            break;
+        case 3:
+            question = "Is Cyan more than 75% of the total?";
+            break;
+        }
+        view.setPracticeComplete(new Text(Strings.PRACTICE_COMPLETE_MESSAGE_EN + "\n"
+                + "In the first block, the question you will be asked is: \n\n" +
+                question));
         view.getPracticeComplete().setTextAlignment(TextAlignment.CENTER);
         view.getPracticeComplete().setFont(new Font("Tahoma", 50));
-        view.getPracticeComplete().setWrappingWidth(600.0);
-        view.setStartAssessment(new Button(Strings.START_ASSESSMENT_SP));
-        view.getPracticeComplete().setLayoutY(SetUp.SCREEN_HEIGHT * .4);
+        view.getPracticeComplete().setWrappingWidth(SCREEN_WIDTH * .9);
+        view.setStartAssessment(new Button(Strings.START_ASSESSMENT_EN));
+        view.getPracticeComplete().setLayoutY(SetUp.SCREEN_HEIGHT * .3);
         view.getPracticeComplete().setLayoutX(SetUp.SCREEN_WIDTH / 2 - view.getPracticeComplete().getWrappingWidth() / 2);
         view.getStartAssessment().setPrefWidth(SCREEN_HEIGHT * .2);
         view.getStartAssessment().setLayoutY(SetUp.SCREEN_HEIGHT * .6);
@@ -177,21 +196,28 @@ public final class SetUp {
         view.getGetReadyBar().setPrefWidth(300.0);
         view.getGetReadyBar().setStyle("-fx-accent: green;");
         
-        view.setGetReady(new Label(Strings.GET_READY_SP));
+        view.setGetReady(new Label(Strings.GET_READY_EN));
         view.getGetReady().setFont(new Font("Tahoma", 50));
         
         view.setGetReadyBox(new VBox(10));
         view.getGetReadyBox().setAlignment(Pos.CENTER);
         view.getGetReadyBox().getChildren().addAll(view.getGetReady(), view.getGetReadyBar());
         
-        view.setPractice(new Label(Strings.PRACTICE_SP));
+        view.setPractice(new Label(Strings.PRACTICE_EN));
         view.getPractice().setFont(new Font("Tahoma", 50));
 
         view.setQuestion(new Label());
         view.getQuestion().setFont(new Font("Tahoma", 50));
 
+        view.setPressSpaceText(new Label());
+        view.setMask(new ImageView(new Image("/res/images/mask.png")));
+        
+        view.setLeftKeyGuide(new Label("TESASDT"));
+        view.setRightKeyGuide(new Label("TEASDSDAST"));
+        
         view.getLayout().getChildren().setAll(view.getGetReadyBox(),
-                view.getDotsCanvas(), view.getPractice(), view.getQuestion());
+                view.getDotsCanvas(), view.getPractice(), view.getQuestion(), view.getPressSpaceText(),
+                view.getMask(), view.getLeftKeyGuide(), view.getRightKeyGuide());
         
         view.getGetReadyBox().setPrefHeight(SCREEN_HEIGHT * .1);
         view.getGetReadyBox().setPrefWidth(SCREEN_WIDTH * .4);    
@@ -210,7 +236,35 @@ public final class SetUp {
         view.getQuestion().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getQuestion().getPrefWidth() / 2));
         view.getQuestion().setLayoutY(SetUp.SCREEN_HEIGHT * .35);
         
+        view.getPressSpaceText().setPrefHeight(SCREEN_HEIGHT * .2);
+        view.getPressSpaceText().setPrefWidth(SCREEN_WIDTH * .8);
+        view.getPressSpaceText().setAlignment(Pos.CENTER);
+        view.getPressSpaceText().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getQuestion().getPrefWidth() / 2));
+        view.getPressSpaceText().setLayoutY(SetUp.SCREEN_HEIGHT * .35);
+        view.getPressSpaceText().setFont(new Font("Tahoma", 30));
+        
+        view.getMask().setLayoutY(SCREEN_HEIGHT * .25);
+        
+        view.getMask().setScaleX(3.0);
+        view.getMask().setScaleY(2.0);
+        view.getMask().setFitWidth(500);
+        view.getMask().setLayoutX(SCREEN_WIDTH / 2 - view.getMask().getFitWidth() / 2);
+        view.getMask().setVisible(false);
         view.getScene().setCursor(Cursor.NONE);
+        
+        view.getLeftKeyGuide().setFont(new Font("Tahoma", 40));
+        view.getLeftKeyGuide().setAlignment(Pos.CENTER);
+        view.getLeftKeyGuide().setPrefWidth(SCREEN_WIDTH * .4);
+        view.getLeftKeyGuide().setPrefHeight(SCREEN_HEIGHT * .1);
+        view.getLeftKeyGuide().setLayoutX((SetUp.SCREEN_WIDTH / 4) - view.getLeftKeyGuide().getPrefWidth() / 2);
+        view.getLeftKeyGuide().setLayoutY(SCREEN_HEIGHT * .9 - view.getLeftKeyGuide().getPrefHeight() / 2);
+        
+        view.getRightKeyGuide().setFont(new Font("Tahoma", 40));
+        view.getRightKeyGuide().setAlignment(Pos.CENTER);
+        view.getRightKeyGuide().setPrefWidth(SCREEN_WIDTH * .4);
+        view.getRightKeyGuide().setPrefHeight(SCREEN_HEIGHT * .1);
+        view.getRightKeyGuide().setLayoutX((SetUp.SCREEN_WIDTH / 4 * 3) - view.getRightKeyGuide().getPrefWidth() / 2);
+        view.getRightKeyGuide().setLayoutY(SCREEN_HEIGHT * .9 - view.getRightKeyGuide().getPrefHeight() / 2);
     }
 
     /**
@@ -232,9 +286,9 @@ public final class SetUp {
      */
     public static void setUpFinishScreen(GameGUI view, int points, int level) {      
         Label score = new Label();
-        score.setText(Strings.YOU_EARNED_SP 
-                + points + Strings.POINTS_SP);
-        view.setCongratulations(new Label(Strings.YOU_DID_IT_SP));
+        score.setText(Strings.YOU_EARNED_EN 
+                + points + Strings.POINTS_EN);
+        view.setCongratulations(new Label(Strings.YOU_DID_IT_EN));
         view.getCongratulations().setFont(Font.font("Verdana", 20));
         score.setFont(Font.font("Tahoma", 16));
         view.setFinishMessage(new VBox(6));
@@ -260,13 +314,13 @@ public final class SetUp {
                 + "-fx-border-width: 3px;");
         quitBox.setPadding(new Insets(30, 30, 30, 30));
         quitBox.setAlignment(Pos.CENTER);
-        Label quitLabel = new Label(Strings.QUIT_MESSAGE_SP);
+        Label quitLabel = new Label(Strings.QUIT_MESSAGE_EN);
         quitLabel.setFont(new Font("Tahoma", 20));
-        Button yesButton = new Button(Strings.YES_SP);
+        Button yesButton = new Button(Strings.YES_EN);
         yesButton.setOnAction(e -> {
             System.exit(0);
         });
-        Button noButton = new Button(Strings.NO_SP);
+        Button noButton = new Button(Strings.NO_EN);
         noButton.setOnAction(e -> {
             view.getExitPopup().hide();
             view.getScene().setCursor(Cursor.NONE);

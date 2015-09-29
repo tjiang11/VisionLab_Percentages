@@ -94,6 +94,14 @@ public class GameGUI {
     private VBox getReadyBox;
     /** Game Screen - Practice label */
     private Label practice;
+    /** Game Screen - Press Space to continue */
+    private Label pressSpaceText;
+    /** Game Screen - Mask to be shown immediately after each dot set is displayed. */
+    private ImageView mask;
+    /** Left Key Guide */
+    private Label leftKeyGuide;
+    /** Right Key Guide */
+    private Label rightKeyGuide;
     
     /** End Screen - message informing the user has finished. */
     private Label congratulations;
@@ -111,7 +119,7 @@ public class GameGUI {
         this.setPrimaryStage(stage);
         this.layout = new AnchorPane();
         this.scene = new Scene(this.layout, SetUp.SCREEN_WIDTH, SetUp.SCREEN_HEIGHT, Color.BLUE);
-        layout.setStyle("-fx-background-color:#858585;");
+        layout.setStyle("-fx-background-color:#808080;");
         this.primaryStage.setScene(this.scene);
         this.primaryStage.setTitle("Letter Game");  
         this.setLoginScreen();
@@ -143,8 +151,8 @@ public class GameGUI {
     /**
      * Sets the screen where user has finished practice trials and is about to begin assessment.
      */
-    public void setPracticeCompleteScreen() {
-        SetUp.setUpPracticeCompleteScreen(this);
+    public void setPracticeCompleteScreen(int blockMode) {
+        SetUp.setUpPracticeCompleteScreen(this, blockMode);
         this.DGC.setPracticeCompleteHandlers();
     }
 
@@ -381,5 +389,37 @@ public class GameGUI {
 
     public void setQuestion(Label question) {
         this.question = question;
+    }
+
+    public Label getPressSpaceText() {
+        return pressSpaceText;
+    }
+
+    public void setPressSpaceText(Label pressSpaceText) {
+        this.pressSpaceText = pressSpaceText;
+    }
+
+    public ImageView getMask() {
+        return mask;
+    }
+
+    public void setMask(ImageView mask) {
+        this.mask = mask;
+    }
+
+    public Label getLeftKeyGuide() {
+        return leftKeyGuide;
+    }
+
+    public void setLeftKeyGuide(Label leftKeyGuide) {
+        this.leftKeyGuide = leftKeyGuide;
+    }
+
+    public Label getRightKeyGuide() {
+        return rightKeyGuide;
+    }
+
+    public void setRightKeyGuide(Label rightKeyGuide) {
+        this.rightKeyGuide = rightKeyGuide;
     }
 }

@@ -3,8 +3,6 @@ package model;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.sun.media.jfxmedia.logging.Logger;
-
 import controller.DotsGameController;
 
 /**
@@ -19,8 +17,10 @@ import controller.DotsGameController;
  */
 public class DotsPairGenerator {
     
-    /** Number of characters to choose from. */
-    static final int MAX_DOTS = 26;
+    /** Maximum number of total dots to be shown in one trial. */
+    static final int MAX_DOTS = 60;
+    /** Minimum number of total dots to be shown in one trial. */
+    static final int MIN_DOTS = 20;
     
     /** Max number of times the same side may be the correct choice. */
     static final int MAX_TIMES_SAME_ANSWER = 3;
@@ -28,19 +28,11 @@ public class DotsPairGenerator {
     /** Max number of times the same relative size (or control type) may be the correct choice. */
     static final int MAX_TIMES_SAME_SIZE_CORRECT = 3;
     
-    /** Map from each difficulty mode to an integer representation. */
-    static final int EASY_MODE = 0;
-    static final int MEDIUM_MODE = 1;
-    static final int HARD_MODE = 2;
-    
     /** Map from each block to an integer representation. */
     public static final int MORE_THAN_HALF_BLOCK = 0;
     public static final int MORE_THAN_FIFTY_BLOCK = 1;
     public static final int MORE_THAN_SIXTY_BLOCK = 2;
     public static final int MORE_THAN_SEVENTYFIVE_BLOCK = 3;    
-    
-    /** Number of difficulty modes. */
-    static final int NUM_MODES = 3;
     
     /** Define the lowest distance (in number of letters) each difficulty can have. */
     public static final int EASY_MODE_MIN = 14;
@@ -61,14 +53,8 @@ public class DotsPairGenerator {
     /** The most recent DotsPair produced by DotsPairGenerator. */
     private DotsPair dotsPair; 
     
-    /** The difficulty setting: EASY, MEDIUM, HARD */
-    private int difficultyMode;
-    
     /** The current block setting */
     private int blockMode;
-    
-    /** The list containing the difficulties. */
-    private ArrayList<Integer> difficultySet;
     
     /** List containing the blocks. */
     private ArrayList<Integer> blockSet;
@@ -99,57 +85,9 @@ public class DotsPairGenerator {
         this.setSameChoice(0);
         this.setLastWasLeft(false);
         this.setLastWasBig(false);
-        this.difficultySet = new ArrayList<Integer>();
         this.blockSet = new ArrayList<Integer>();
         this.ratiosBucket = new ArrayList<Ratio>();
-        this.fillDifficultySet();
         this.fillBlockSet();
-    }
-    
-    /**
-     * Gets a new DotsPair with random letters while
-     * checking to make sure that the same choice will
-     * not be picked more than three times in a row
-     * as being correct.
-     */
-    public void getNewPair() {
-        this.setDifficulty();
-        int dotSetOne, dotSetTwo;
-        dotSetOne = this.randomGenerator.nextInt(MAX_DOTS) + 1;
-        do {
-            dotSetTwo = this.randomGenerator.nextInt(MAX_DOTS) + 1; 
-        } while (dotSetOne == dotSetTwo);        
-           
-        this.checkAndSet(dotSetOne, dotSetTwo);
-    }
-    
-    /**
-     * This is how the difficulty is pseudo-randomly decided:
-     * 
-     * There will be a list (difficultySet) containing triplets of modes, 
-     * where each triplet would contain one of each difficulty mode.
-     * NUM_MODE_SETS is the number of triplets that the difficultySet contains.
-     * 
-     * When resetting the difficulty <setDifficulty()>, one mode will be randomly selected
-     * from the difficultySet and removed. This repeats until difficultySet
-     * is empty where it will then refill.
-     * 
-     */
-    private void fillDifficultySet() {
-        for (int i = 0; i < NUM_MODE_TRIPLETS; i++) {
-            this.difficultySet.add(EASY_MODE);
-            this.difficultySet.add(MEDIUM_MODE);
-            this.difficultySet.add(HARD_MODE);
-        }
-    }
-    
-    public void setDifficulty() {
-        this.difficultyMode = 
-                this.difficultySet.remove(
-                        randomGenerator.nextInt(this.difficultySet.size()));
-        if (this.difficultySet.isEmpty()) {
-            this.fillDifficultySet();
-        }
     }
     
     /**
@@ -177,30 +115,9 @@ public class DotsPairGenerator {
         this.getNewPair(ratio);
     }
     
-    /**
-     * Get a new pair based on the current difficulty.
-     */
-    public void getNewDifficultyPair() {
-        this.setDifficulty();
-        int difference = this.decideDifference();
-        this.getNewPair(difference);
-    }
-    
-    /**
-     * Decide the distance between the two choices, based on current difficulty.
-     * @return int distance between the choices.
-     */
-    private int decideDifference() {
-        switch (this.difficultyMode) {
-            case EASY_MODE:
-                return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + EASY_MODE_MIN;
-            case MEDIUM_MODE:
-                return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + MEDIUM_MODE_MIN;
-            case HARD_MODE:
-                return this.randomGenerator.nextInt(NUM_CHOICES_IN_MODE) + HARD_MODE_MIN;
-        }
-        System.err.println("Error on decideDifference");
-        return 0;
+    /** Clear the ratios */
+    public void clearRatios() {
+        this.ratiosBucket.clear();
     }
     
     private Ratio decideRatio() {
@@ -215,77 +132,58 @@ public class DotsPairGenerator {
         switch (this.blockMode) {
         case MORE_THAN_FIFTY_BLOCK:
         case MORE_THAN_HALF_BLOCK:
-            for (int i = 0; i < DotsGameController.NUM_QUESTIONS_PER_BLOCK / 4; i++) {
-                this.ratiosBucket.add(new Ratio(2,1));
-                this.ratiosBucket.add(new Ratio(3,1));
-                this.ratiosBucket.add(new Ratio(1,2));
-                this.ratiosBucket.add(new Ratio(1,3));
-            }
+                this.ratiosBucket.add(new Ratio(9,16));
+                this.ratiosBucket.add(new Ratio(2,3));
+                this.ratiosBucket.add(new Ratio(11,14));
+                this.ratiosBucket.add(new Ratio(12,13));
+                this.ratiosBucket.add(new Ratio(13,12));
+                this.ratiosBucket.add(new Ratio(14,11));
+                this.ratiosBucket.add(new Ratio(3,2));
+                this.ratiosBucket.add(new Ratio(16,9));
             break;
         case MORE_THAN_SIXTY_BLOCK:
-            for (int i = 0; i < DotsGameController.NUM_QUESTIONS_PER_BLOCK / 4; i++) {
-                this.ratiosBucket.add(new Ratio(2,1));
-                this.ratiosBucket.add(new Ratio(3,1));
-                this.ratiosBucket.add(new Ratio(5,4));
-                this.ratiosBucket.add(new Ratio(2,2));
-            }
+                this.ratiosBucket.add(new Ratio(11,14));
+                this.ratiosBucket.add(new Ratio(12,13));
+                this.ratiosBucket.add(new Ratio(13,12));
+                this.ratiosBucket.add(new Ratio(4,3));
+                this.ratiosBucket.add(new Ratio(5,3));
+                this.ratiosBucket.add(new Ratio(13,7));
+                this.ratiosBucket.add(new Ratio(18,7));
+                this.ratiosBucket.add(new Ratio(19,6));
             break;
         case MORE_THAN_SEVENTYFIVE_BLOCK:
-            for (int i = 0; i < DotsGameController.NUM_QUESTIONS_PER_BLOCK / 4; i++) {
-                this.ratiosBucket.add(new Ratio(7,5));
-                this.ratiosBucket.add(new Ratio(8,5));
-                this.ratiosBucket.add(new Ratio(5,1));
-                this.ratiosBucket.add(new Ratio(6,1));
-            }
+                this.ratiosBucket.add(new Ratio(7,6));
+                this.ratiosBucket.add(new Ratio(3,2));
+                this.ratiosBucket.add(new Ratio(2,1));
+                this.ratiosBucket.add(new Ratio(18,7));
+                this.ratiosBucket.add(new Ratio(18,5));
+                this.ratiosBucket.add(new Ratio(21,4));
+                this.ratiosBucket.add(new Ratio(9,1));
+                this.ratiosBucket.add(new Ratio(24,1));
             break;
         }
         System.out.println(this.ratiosBucket.toString());
     }
     
     private void getNewPair(Ratio ratio) {
-        int scaleUp = randomGenerator.nextInt(5);
-        int minDots = 15;
-        int maxDots = 45;
         int ratioNumOne = ratio.getNumOne();
         int ratioNumTwo = ratio.getNumTwo();
         int numDotsOne = ratio.getNumOne();
         int numDotsTwo = ratio.getNumTwo();
-        numDotsOne *= scaleUp;
-        numDotsTwo *= scaleUp;
-        while (numDotsOne + numDotsTwo < minDots) {
+        while (numDotsOne + numDotsTwo < MIN_DOTS) {
             numDotsOne += ratioNumOne;
             numDotsTwo += ratioNumTwo;
         }
-        while (numDotsOne + numDotsTwo > maxDots) {
-            numDotsOne -= ratioNumOne;
-            numDotsTwo -= ratioNumTwo;
-        }
-        boolean swap = false;
-        if (randomGenerator.nextBoolean()) {
-            numDotsOne = swap(numDotsTwo, numDotsTwo = numDotsOne);
-            swap = true;
+        int max = (MAX_DOTS - (numDotsOne + numDotsTwo)) / (ratioNumOne + ratioNumTwo);
+        int randMax = randomGenerator.nextInt(max);
+        for (int i = 0; i < randMax; i++) {
+            numDotsOne += ratioNumOne;
+            numDotsTwo += ratioNumTwo;
         }
         this.checkAndSet(numDotsOne, numDotsTwo);
-        this.dotsPair.determineWhichSideCorrect(this.blockMode);
-        this.dotsPair.setSwapped(swap);
         System.out.println(numDotsOne + " " + numDotsTwo);
         System.out.println((double) numDotsOne / (numDotsOne + numDotsTwo));
         System.out.println((double) numDotsTwo / (numDotsOne + numDotsTwo));
-    }
-    
-    /**
-     * Gets a new DotsPair with letters a certain distance apart.
-     * @param difference distance between the letters.
-     */
-    public void getNewPair(int difference) {
-        int dotSetOne, dotSetTwo;
-        dotSetOne = this.randomGenerator.nextInt(MAX_DOTS - difference) + 1;
-        dotSetTwo = dotSetOne + difference;
-        
-        if (randomGenerator.nextBoolean()) {
-            dotSetOne = swap(dotSetTwo, dotSetTwo = dotSetOne);
-        }
-        this.checkAndSet(dotSetOne, dotSetTwo);
     }
     
     /**
@@ -307,11 +205,11 @@ public class DotsPairGenerator {
             this.toggleLastWasBig();
         }
         
-        if (this.getSameChoice() >= MAX_TIMES_SAME_ANSWER) {
-            this.setReversePair(dotSetOne, dotSetTwo, controlTypeCandidate);
-        } else {
+//        if (this.getSameChoice() >= MAX_TIMES_SAME_ANSWER) {
+//            this.setReversePair(dotSetOne, dotSetTwo, controlTypeCandidate);
+//        } else {
             this.setDotsPair(new DotsPair(dotSetOne, dotSetTwo, controlTypeCandidate));
-        }
+       // }
     }
     
     /**
@@ -435,16 +333,10 @@ public class DotsPairGenerator {
     
     public void changeBlock() {
         this.blockSet.remove(0);
-        this.blockMode = this.blockSet.get(0);
+        if (!this.blockSet.isEmpty()) {
+            this.blockMode = this.blockSet.get(0);
+        }
         this.ratiosBucket.clear();
-    }
-    
-    public void setRandomDifficulty() {
-        this.difficultyMode = this.randomGenerator.nextInt(NUM_MODES);
-    }
-    
-    public void increaseDifficulty() {
-        this.difficultyMode++;
     }
 
     public DotsPair getDotsPair() {
@@ -473,14 +365,6 @@ public class DotsPairGenerator {
 
     public void setLastWasLeft(boolean lastWasLeft) {
         this.lastWasLeft = lastWasLeft;
-    }
-
-    public int getDifficultyMode() {
-        return difficultyMode;
-    }
-
-    public void setDifficultyMode(int difficultyMode) {
-        this.difficultyMode = difficultyMode;
     }
 
     public boolean isLastWasBig() {

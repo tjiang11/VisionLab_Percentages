@@ -30,4 +30,29 @@ public class Strings {
     public static final String QUIT_MESSAGE_SP = "Terminar la evaluación?";
     public static final String YES_SP = "Sí";
     public static final String NO_SP = "No";
+    
+    public static final String ENTER_SUBJECT_ID_EN = "Enter your Subject ID";
+    public static final String PICK_YOUR_GENDER_EN = "Pick your Gender";
+    public static final String ENTER_AGE_EN = "Enter your age";
+    public static final String START_EN = "Start";
+    public static final String SUB_ID_FEEDBACK_EN = "You must enter a number.";
+    public static final String GENDER_FEEDBACK_EN = "This field is required.";
+    public static final String AGE_FEEDBACK_EN = "You must enter a number.";
+    public static final String MALE_EN = "Male";
+    public static final String FEMALE_EN = "Female";
+    
+    public static final String PRESS_NEXT_EN = "Press 'Next' when you're ready.";
+    public static final String NEXT_EN = "Next";
+    public static final String PRACTICE_COMPLETE_MESSAGE_EN = "Practice Complete.";
+    public static final String START_ASSESSMENT_EN = "Start Assessment";
+    public static final String PRACTICE_EN = "PRACTICE";
+    public static final String GET_READY_EN = "Get Ready";
+    
+    public static final String YOU_EARNED_EN = "You Earned ";
+    public static final String POINTS_EN = " Points.";
+    public static final String YOU_DID_IT_EN = "Assessment Complete.";
+    
+    public static final String QUIT_MESSAGE_EN = "Quit the assessment?";
+    public static final String YES_EN = "Yes";
+    public static final String NO_EN = "No";
 }

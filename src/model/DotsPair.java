@@ -25,10 +25,7 @@ public class DotsPair {
     
     /** The difference in number of dots between the sets. */
     private int difference;
-    
-    /** Whether the left answer is correct or not. */
-    private boolean leftCorrect;
-    
+        
     /** The control type of this pair */
     private ControlType controlType;
 
@@ -37,10 +34,7 @@ public class DotsPair {
     private static boolean INVERSE_AREAS_ONLY;
     private static boolean AVERAGE_RADIUS_CONTROL;
     
-    private Random randomGenerator = new Random();
-    
-    private boolean swapped;
-    
+    private Random randomGenerator = new Random();    
     /** 
      * Constructor for DotsPair.
      * @param numDotsOne The number of dots in the first set.
@@ -61,13 +55,6 @@ public class DotsPair {
         if (TOTAL_AREA_CONTROL_ON) {
             this.scaleAreas();
         }
-        
-        this.difference = numDotsOne - numDotsTwo;
-        if (this.difference > 0) {
-            this.setLeftCorrect(true);
-        } else if (this.difference < 0) {
-            this.setLeftCorrect(false);
-        }
     }
     
     private void loadConfig() {
@@ -77,34 +64,6 @@ public class DotsPair {
         EQUAL_AREAS_ONLY = Config.getPropertyBoolean("equal.areas.only");
         INVERSE_AREAS_ONLY = Config.getPropertyBoolean("inverse.areas.only");
         AVERAGE_RADIUS_CONTROL = Config.getPropertyBoolean("average.radius.control");
-    }
-    
-    
-    public void determineWhichSideCorrect(int blockMode) {
-        int numDotsOne = this.dotSetOne.getTotalNumDots();
-        int numDotsTwo = this.dotSetTwo.getTotalNumDots();
-        switch (blockMode) {
-        case DotsPairGenerator.MORE_THAN_FIFTY_BLOCK:
-        case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
-            if ((double) numDotsOne / (numDotsOne + numDotsTwo) > .5) {
-                setLeftCorrect(true);
-            } else {
-                setLeftCorrect(false);
-            }
-            break;
-        case DotsPairGenerator.MORE_THAN_SIXTY_BLOCK: 
-            if ((double) numDotsOne / (numDotsOne + numDotsTwo) > .6) {
-                setLeftCorrect(true);
-            } else {
-                setLeftCorrect(false);
-            }
-        case DotsPairGenerator.MORE_THAN_SEVENTYFIVE_BLOCK:
-            if ((double) numDotsOne / (numDotsOne + numDotsTwo) > .75) {
-                setLeftCorrect(true);
-            } else {
-                setLeftCorrect(false);
-            }
-        }
     }
     
     /**
@@ -206,27 +165,11 @@ public class DotsPair {
         this.difference = difference;
     }
 
-    public boolean isLeftCorrect() {
-        return this.leftCorrect;
-    }
-
-    public void setLeftCorrect(boolean leftCorrect) {
-        this.leftCorrect = leftCorrect;
-    }
-
     public ControlType getControlType() {
         return controlType;
     }
 
     public void setControlType(ControlType controlType) {
         this.controlType = controlType;
-    }
-
-    public boolean isSwapped() {
-        return swapped;
-    }
-
-    public void setSwapped(boolean swapped) {
-        this.swapped = swapped;
     }
 }

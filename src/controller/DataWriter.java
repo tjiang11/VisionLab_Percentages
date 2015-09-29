@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 import model.ControlType;
 import model.DotsPair;
-import model.DotsPairGenerator;
 import model.Player;
 
 
@@ -37,19 +36,26 @@ public class DataWriter {
     public static final String WHICH_SIDE_CORRECT = "Side Correct";
     public static final String WHICH_SIDE_PICKED = "Side Picked";
     public static final String IS_CORRECT = "Correct";
-    public static final String DIFFICULTY = "Difficulty";
-    public static final String DISTANCE = "Distance";
+    public static final String BLOCK = "Block";
     public static final String CONTROL_TYPE = "Control Type";
-    public static final String NUMBER_DOTS_RATIO = "Ratio of number of dots (greater to smaller)";
+    public static final String NUMBER_DOTS_RATIO = "Ratio of number of dots";
+    public static final String PERCENTAGE = "Percentage of dots";
     public static final String AREA_RATIO = "Ratio of areas of dot sets (greater to smaller)";
+    public static final String COLOR_ONE = "Color One";
+    public static final String COLOR_TWO = "Color Two";
     public static final String RESPONSE_TIME = "Response Time";
     public static final String DATE_TIME = "Date/Time";
     public static final String CONSECUTIVE_ROUND = "Consecutive Rounds";
+    public static final String KEY_FOR_YES = "Key for \"Yes\" ";
     
     /** The subject to grab data from. */
     private Player player;
     /** DotsPair to grab data from. */
     private DotsPair dotsPair;
+    /** DotsGameController */
+    private DotsGameController dgc;
+    private String colorOne;
+    private String colorTwo;
     
     /**
      * Constructor for data writer that takes in a controller
@@ -59,6 +65,7 @@ public class DataWriter {
     public DataWriter(DotsGameController dgc) {
         this.player = dgc.getThePlayer();
         this.dotsPair = dgc.getCurrentDotsPair();
+        this.dgc = dgc;
     }
     
     /**
@@ -68,6 +75,8 @@ public class DataWriter {
     public void grabData(DotsGameController dgc) {
         this.player = dgc.getThePlayer();
         this.dotsPair = dgc.getCurrentDotsPair();
+        this.colorOne = dgc.getColorOne();
+        this.colorTwo = dgc.getColorTwo();
     }
     
     /**
@@ -131,14 +140,17 @@ public class DataWriter {
                 + WHICH_SIDE_CORRECT + DELIMITER
                 + WHICH_SIDE_PICKED + DELIMITER
                 + IS_CORRECT + DELIMITER
-                + DIFFICULTY + DELIMITER
-                + DISTANCE + DELIMITER
+                + BLOCK + DELIMITER
                 + CONTROL_TYPE + DELIMITER 
                 + NUMBER_DOTS_RATIO + DELIMITER
-                + AREA_RATIO + DELIMITER             
+                + PERCENTAGE + DELIMITER
+                + AREA_RATIO + DELIMITER    
+                + COLOR_ONE + DELIMITER
+                + COLOR_TWO + DELIMITER
                 + RESPONSE_TIME + DELIMITER
                 + DATE_TIME + DELIMITER
-                + CONSECUTIVE_ROUND + "\n";
+                + CONSECUTIVE_ROUND + DELIMITER
+                + KEY_FOR_YES + "\n";
         return text;
     }
 
@@ -155,14 +167,17 @@ public class DataWriter {
         String whichSideCorrect = this.generateWhichSideCorrectText();
         String whichSidePicked = this.generateWhichSidePickedText(whichSideCorrect);
         String correct = this.generateCorrectText();
-        String difficulty = this.generateDifficultyText();
-        String distance = this.generateDistanceText();
+        String block = this.generateBlockText();
         String controlType = this.generateControlTypeText();
         String numDotsRatio = this.generateNumDotsRatioText();
+        String percentage = this.generatePercentageText();
         String areaRatio = this.generateAreaRatioText();
+        String colorOne = this.generateColorOneText();
+        String colorTwo = this.generateColorTwoText();
         String responseTime = this.generateResponseTimeText();
         String dateTime = this.generateDateTimeText();
         String consecutiveRounds = this.generateConsecutiveRoundsText();
+        String keyForYes = this.generateKeyForYesText();
         
         String trialText = subjectID + DELIMITER
                 + subjectAge + DELIMITER
@@ -172,14 +187,17 @@ public class DataWriter {
                 + whichSideCorrect + DELIMITER
                 + whichSidePicked + DELIMITER
                 + correct + DELIMITER
-                + difficulty + DELIMITER
-                + distance + DELIMITER
+                + block + DELIMITER
                 + controlType + DELIMITER
                 + numDotsRatio + DELIMITER
+                + percentage + DELIMITER
                 + areaRatio + DELIMITER
+                + colorOne + DELIMITER
+                + colorTwo + DELIMITER
                 + responseTime + DELIMITER
                 + dateTime + DELIMITER
-                + consecutiveRounds + "\n";
+                + consecutiveRounds + DELIMITER
+                + keyForYes + "\n";
         
         return trialText;
     }
@@ -209,10 +227,10 @@ public class DataWriter {
     }
     
     private String generateWhichSideCorrectText() {
-        if (this.dotsPair.isLeftCorrect()) {
-            return "left";
+        if (this.dgc.isYesCorrect()) {
+            return "YES";
         } else {
-            return "right";
+            return "NO";
         }
     }
     
@@ -220,10 +238,10 @@ public class DataWriter {
         if (this.player.isRight()) {
             return whichSideCorrect;
         } else {
-            if (whichSideCorrect.equals("left")) {
-                return "right";
+            if (whichSideCorrect.equals("YES")) {
+                return "NO";
             } else {
-                return "left";
+                return "YES";
             }
         }
     }
@@ -236,28 +254,10 @@ public class DataWriter {
         }
     }
     
-    private String generateDifficultyText() {
-        int difference = Math.abs(this.dotsPair.getDifference());
-        if (difference >= DotsPairGenerator.EASY_MODE_MIN &&
-                difference < DotsPairGenerator.EASY_MODE_MIN 
-                + DotsPairGenerator.NUM_CHOICES_IN_MODE) {
-            return "EASY";
-        } else if (difference >= DotsPairGenerator.MEDIUM_MODE_MIN &&
-                difference < DotsPairGenerator.MEDIUM_MODE_MIN
-                + DotsPairGenerator.NUM_CHOICES_IN_MODE) {
-            return "MEDIUM";
-        } else if (difference >= DotsPairGenerator.HARD_MODE_MIN &&
-                difference < DotsPairGenerator.HARD_MODE_MIN 
-                + DotsPairGenerator.NUM_CHOICES_IN_MODE) {
-            return "HARD";
-        } 
-        return "";
+    private String generateBlockText() {
+        return Integer.toString(this.dgc.getLastBlock());
     }
     
-    private String generateDistanceText() {
-        return Integer.toString(Math.abs(
-                    this.dotsPair.getDifference()));
-    }
     
     private String generateControlTypeText() {
         if (this.dotsPair.getControlType() == ControlType.EQUAL_AREAS) {
@@ -280,12 +280,28 @@ public class DataWriter {
         return Double.toString(ratio);
     }
     
+    private String generatePercentageText() {
+        double percentage = 
+                ((double) this.dotsPair.getDotSetOne().getTotalNumDots() / 
+                        (this.dotsPair.getDotSetOne().getTotalNumDots() 
+                                + this.dotsPair.getDotSetTwo().getTotalNumDots()));
+        return Double.toString(percentage);
+    }
+    
     private String generateAreaRatioText() {
         double ratio = ((double) this.dotsPair.getDotSetOne().getTotalArea() / this.dotsPair.getDotSetTwo().getTotalArea());
         if (ratio < 1) {
             ratio = 1 / ratio;
         }
         return Double.toString(ratio);
+    }
+    
+    private String generateColorOneText() {
+        return this.colorOne;
+    }
+    
+    private String generateColorTwoText() {
+        return this.colorTwo;
     }
     
     private String generateResponseTimeText() {
@@ -299,5 +315,13 @@ public class DataWriter {
     private String generateConsecutiveRoundsText() {
         return Integer.toString(
                 this.player.getNumRounds());
+    }
+    
+    private String generateKeyForYesText() {
+        if (this.dgc.isFforTrue()) {
+            return "F";
+        } else {
+            return "J";
+        }
     }
 }
