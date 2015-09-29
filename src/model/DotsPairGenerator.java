@@ -2,17 +2,31 @@ package model;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import controller.DotsGameController;
-
 /**
- * Generates DotsPairs with random numbers of dots.
- * 
- * Classes Related To:
- *  -DotsPair.java
- * 
  * @author Tony Jiang
  * 6-25-2015
+ * 
+ * Classes Related To:
+ * (DotsGameController) > DotsPairGenerator > DotsPair > DotSet > Coordinate
+ *                                          > Ratio
+ *                                             
+ * Generates 'DotsPair's with selected numbers of dots.
+ * 
+ * The quantity of dots in DotsPairs and consequently DotSets
+ * are determined by selected a predefined ratio (Ratio)
+ * and scaling that ratio until it is within a desirable range
+ * (between MIN_DOTS and MAX_DOTS).
+ * 
+ * The predefined ratios are put into 'ratiosBucket'. For the next trial,
+ * a ratio is choes at random from the ratiosBucket and removed. Once
+ * the ratiosBucket is empty, the ratiosBucket is refilled with Ratios
+ * based on the blockMode, which "block" the subject is currently in.
+ * Whenever, a block is complete (based on number of rounds complete)
+ * the ratiosBucket is immediately emptied.
+ * 
+ * A "DotsPair" in this assessment is the two sets of dots,
+ * each of a different color, that is shown in the same space
+ * in one trial.
  *
  */
 public class DotsPairGenerator {
@@ -22,9 +36,6 @@ public class DotsPairGenerator {
     /** Minimum number of total dots to be shown in one trial. */
     static final int MIN_DOTS = 20;
     
-    /** Max number of times the same side may be the correct choice. */
-    static final int MAX_TIMES_SAME_ANSWER = 3;
-    
     /** Max number of times the same relative size (or control type) may be the correct choice. */
     static final int MAX_TIMES_SAME_SIZE_CORRECT = 3;
     
@@ -33,19 +44,6 @@ public class DotsPairGenerator {
     public static final int MORE_THAN_FIFTY_BLOCK = 1;
     public static final int MORE_THAN_SIXTY_BLOCK = 2;
     public static final int MORE_THAN_SEVENTYFIVE_BLOCK = 3;    
-    
-    /** Define the lowest distance (in number of letters) each difficulty can have. */
-    public static final int EASY_MODE_MIN = 14;
-    public static final int MEDIUM_MODE_MIN = 8;
-    public static final int HARD_MODE_MIN = 2;
-    
-    /** The highest distance each difficulty can have is their minimum plus NUM_CHOICES_IN_MODE. */
-    public static final int NUM_CHOICES_IN_MODE = 4;
-    
-    /**
-     * Number of triplets of modes per set. See fillDifficultySet().
-     */
-    static final int NUM_MODE_TRIPLETS = 2;
     
     /** Random number generator. */
     Random randomGenerator = new Random();
@@ -62,18 +60,13 @@ public class DotsPairGenerator {
     /** List containing Ratios for the current block. */
     private ArrayList<Ratio> ratiosBucket;
     
-    /** A measure of how many times the same side has been correct. */
-    private int sameChoiceCorrect;
-    
-    /** A measure of how many times the same size has been correct, meaning
+    /** A measure of how many times the same 'size' has been correct, meaning
      how many times has the cluster with bigger/smaller individual dots been correct.
      Depends on area control type --> 
          Equal Areas <--> Smaller Correct  
-         Inverse Areas <--> Bigger Correct */
+         Inverse Areas <--> Bigger Correct 
+       See ControlType.java.*/
     private int sameSizeCorrect;
-    
-    /** True if the last correct choice was left. False otherwise. */
-    private boolean lastWasLeft;
     
     /** True if the last correct choice was the cluster with bigger individual dots. */
     private boolean lastWasBig;
@@ -82,8 +75,6 @@ public class DotsPairGenerator {
      * Constructor. 
      */
     public DotsPairGenerator() {
-        this.setSameChoice(0);
-        this.setLastWasLeft(false);
         this.setLastWasBig(false);
         this.blockSet = new ArrayList<Integer>();
         this.ratiosBucket = new ArrayList<Ratio>();
@@ -115,11 +106,17 @@ public class DotsPairGenerator {
         this.getNewPair(ratio);
     }
     
-    /** Clear the ratios */
+    /**
+     * Empty the ratio bucket. 
+     */
     public void clearRatios() {
         this.ratiosBucket.clear();
     }
     
+    /**
+     * Pick a ratio at random from the ratiosBucket. If the ratiosBucket is empty, then refill it.
+     * @return Ratio
+     */
     private Ratio decideRatio() {
         if (this.ratiosBucket.isEmpty()) {
             fillRatiosBucket();
@@ -128,6 +125,9 @@ public class DotsPairGenerator {
         return ratio;
     }
     
+    /**
+     * Refill the ratiosBucket based on the current block.
+     */
     private void fillRatiosBucket() {
         switch (this.blockMode) {
         case MORE_THAN_FIFTY_BLOCK:
@@ -165,6 +165,11 @@ public class DotsPairGenerator {
         System.out.println(this.ratiosBucket.toString());
     }
     
+    /**
+     * Get a new pair with a specified ratio of numbers of dots.
+     * Scale the total number of dots to a range between MIN_DOTS and MAX_DOTS.
+     * @param ratio
+     */
     private void getNewPair(Ratio ratio) {
         int ratioNumOne = ratio.getNumOne();
         int ratioNumTwo = ratio.getNumTwo();
@@ -187,40 +192,37 @@ public class DotsPairGenerator {
     }
     
     /**
-     * Perform checks to see if/how the pair should be set and set.
+     * Set the dots pair.
      * @param dotSetOne number of dots in dot set one.
      * @param dotSetTwo number of dots in dot set two.
      */
     private void checkAndSet(int dotSetOne, int dotSetTwo) {  
-        ControlType controlTypeCandidate = generateRandomAreaControlType();
-        this.performChecks(dotSetOne, dotSetTwo, controlTypeCandidate);
-        
-        if (this.getSameSizeCorrect() >= MAX_TIMES_SAME_SIZE_CORRECT) {
-            if (controlTypeCandidate == ControlType.EQUAL_AREAS) {
-                controlTypeCandidate = ControlType.INVERSE_AREAS;
-            } else if (controlTypeCandidate == ControlType.INVERSE_AREAS) {
-                controlTypeCandidate = ControlType.EQUAL_AREAS;
-            }       
-            this.setSameSizeCorrect(0);
-            this.toggleLastWasBig();
-        }
-        
-//        if (this.getSameChoice() >= MAX_TIMES_SAME_ANSWER) {
-//            this.setReversePair(dotSetOne, dotSetTwo, controlTypeCandidate);
-//        } else {
-            this.setDotsPair(new DotsPair(dotSetOne, dotSetTwo, controlTypeCandidate));
-       // }
+        ControlType controlTypeCandidate = generateAreaControlType(dotSetOne, dotSetTwo);
+        this.setDotsPair(new DotsPair(dotSetOne, dotSetTwo, controlTypeCandidate));
     }
     
     /**
      * Perform checks.
-     * @return true if this pair should NOT be set.
      */
     private void performChecks(int dotSetOne, int dotSetTwo, ControlType controlTypeCandidate) {
-        this.checkSameChoice(dotSetOne, dotSetTwo);
         this.checkSameSize(controlTypeCandidate);
     }
 
+    /** 
+     * Generate the next ControlType.
+     * @param dotSetOne
+     * @param dotSetTwo
+     * @return The next ControlType.
+     */
+    private ControlType generateAreaControlType(int dotSetOne, int dotSetTwo) {
+        ControlType controlTypeCandidate = generateRandomAreaControlType();
+        this.performChecks(dotSetOne, dotSetTwo, controlTypeCandidate);
+        if (this.getSameSizeCorrect() >= MAX_TIMES_SAME_SIZE_CORRECT) {
+            controlTypeCandidate = changeControlType(controlTypeCandidate);
+        }
+        return controlTypeCandidate;
+    }
+    
     /**
      * Generates a random control type. Either EQUAL_AREAS or INVERSE_AREAS.
      * @return random control type.
@@ -234,51 +236,27 @@ public class DotsPairGenerator {
     }
     
     /**
-     * Occurs under the condition that the same side has been correct
-     * for MAX_TIMES_SAME_ANSWER times in a row.
-     * 
-     * Set the DotsPair with the positions of the right and left letters
-     * flipped as to what it would have otherwise been.
-     * 
-     * Toggles the lastWasLeft property because we are toggling the side
-     * of which each component of the pair is being shown, so the opposite
-     * side will be correct after setting the alpha pair in reverse order.
-     * 
-     * @param dotSetOne 
-     * @param dotSetTwo
+     * Swap the area of the controlTypeCandidate between EQUAL_AREAS and INVERSE_AREAS.
+     * @param controlTypeCandidate
+     * @return the opposite control type.
      */
-    public void setReversePair(int dotSetOne, int dotSetTwo, ControlType controlType) {
-        this.setDotsPair(new DotsPair(dotSetTwo, dotSetOne, controlType));
-        this.toggleLastWasLeft();
-        this.setSameChoice(0);
+    private ControlType changeControlType(ControlType controlTypeCandidate) {
+        this.setSameSizeCorrect(0);
+        this.toggleLastWasBig();
+        if (controlTypeCandidate == ControlType.EQUAL_AREAS) {
+            return ControlType.INVERSE_AREAS;
+        } else if (controlTypeCandidate == ControlType.INVERSE_AREAS) {
+            return ControlType.EQUAL_AREAS;
+        }
+        return ControlType.NONE;
     }
-
-    /**
-     * Check if the same side is correct as the last round.
-     * @param dotSetOne Position of first letter of current round.
-     * @param dotSetTwo Position of second letter of current round.
-     */
-    public void checkSameChoice(int dotSetOne, int dotSetTwo) {
-        if (dotSetOne > dotSetTwo) {
-            if (this.lastWasLeft) {
-                this.incrementSameChoice();
-            } else {
-                this.setSameChoice(0);
-            }
-            this.lastWasLeft = true;
-        } else {
-            if (!this.lastWasLeft) {
-                this.incrementSameChoice();
-            } else {
-                this.setSameChoice(0);
-            }
-            this.lastWasLeft = false;
-        }   
-    }
-    
+        
     /**
      * Check if the same relative size (or control type) is correct
      * as the last round. Inverse areas <--> Big correct. Equal areas <--> Small correct.
+     * 
+     * See ControlType.java
+     * 
      * @param controlType the ControlType to be evaluated.
      */
     private void checkSameSize(ControlType controlType) {
@@ -298,17 +276,6 @@ public class DotsPairGenerator {
             this.lastWasBig = false;
         }
     }
-
-    /**
-     * Toggles which of the last choices was correct.
-     */
-    private void toggleLastWasLeft() {
-        if (this.lastWasLeft) {
-            this.lastWasLeft = false;
-        } else {
-            this.lastWasLeft = true;
-        }
-    }
     
     /**
      * Toggles which of the last relative sizes was correct.
@@ -320,17 +287,10 @@ public class DotsPairGenerator {
             this.lastWasBig = true;
         }   
     }
-    
+        
     /** 
-     * Swap values of x and y. To be used as an expression.
-     * 
-     * @param x
-     * @param y This parameter should be an assignment.
+     * Change to the next block. Clear the ratiosBucket.
      */
-    private int swap(int x, int y) {
-        return x;
-    }
-    
     public void changeBlock() {
         this.blockSet.remove(0);
         if (!this.blockSet.isEmpty()) {
@@ -346,27 +306,7 @@ public class DotsPairGenerator {
     public void setDotsPair(DotsPair dotsPair) {
         this.dotsPair = dotsPair;
     }
-
-    public int getSameChoice() {
-        return this.sameChoiceCorrect;
-    }
-
-    public void setSameChoice(int sameChoiceCorrect) {
-        this.sameChoiceCorrect = sameChoiceCorrect;
-    }
-
-    public void incrementSameChoice() {
-        this.sameChoiceCorrect++;
-    }
     
-    public boolean isLastWasLeft() {
-        return this.lastWasLeft;
-    }
-
-    public void setLastWasLeft(boolean lastWasLeft) {
-        this.lastWasLeft = lastWasLeft;
-    }
-
     public boolean isLastWasBig() {
         return lastWasBig;
     }
