@@ -24,8 +24,14 @@ import view.GameGUI;
 
 /**
  * 
+ * (DotsGameController) > DotsPairGenerator > DotsPair > DotSet > Coordinate
+ *                                          > Ratio
+ *                      > Player
+ *                      > DataWriter
+ * (DotsGameController) > GameGUI > SetUp
+ * 
  * The center of the program; interface between the
- * models and the view. 
+ * models and the view. Controls the flow of the assessment.
  * 
  * Classes Related to:
  *  -GameGUI.java (view)
@@ -47,23 +53,18 @@ import view.GameGUI;
  */
 public class DotsGameController implements GameController {
     
+    /** Logger */
     private static Logger logger = Logger.getLogger("mylog");
     
+    /** Color of the canvas. In this assessment, should be same color as background. */
     final static Color CANVAS_COLOR = Color.GRAY;
-    final static Color[] DOT_COLORS = {Color.GREEN, Color.BLUE, Color.RED, Color.GOLDENROD, Color.DARKMAGENTA, Color.DEEPSKYBLUE};
-    
-    /** Punish for wrong answers */
-    static final boolean PUNISH = true;
-    
+            
     /** Time in milliseconds for the player to get ready after pressing start */
     final static int GET_READY_TIME = 2000;
     
     /** Time in milliseconds to show mask */
     final static int MASK_TIME = 100;
-    
-    /** Integer representing each each background. */
-    private static int backgroundNumber = 0;
-       
+           
     /** Time between rounds in milliseconds. */
     static int TIME_BETWEEN_ROUNDS;
     
@@ -82,12 +83,16 @@ public class DotsGameController implements GameController {
     /** Canvas Graphics Context */
     private GraphicsContext graphicsContextCanvas;
     
-    /** Index of the current dots color in DOTS_COLORS */
+    /** Color of the first DotSet */
     private Color dotsColorOne;
+    /** Color of the second DotSet */
     private Color dotsColorTwo;
-    private String colorOne;
-    private String colorTwo;
     
+    /** Color of the first DotSet (String) */
+    private String colorOne;
+    /** Color of the second DotSet (String) */
+    private String colorTwo;
+    /** The integer representation of the last round's block. */
     private int lastBlock;
     /** Whether "Yes" is correct or not */
     private boolean yesCorrect;
@@ -108,32 +113,23 @@ public class DotsGameController implements GameController {
     private static GameState gameState;
     
     private enum GameState {
-        /** Player has responded and next round is loading. */
-        WAITING_BETWEEN_ROUNDS,
-        
-        /** Player has not responded and the dots sets are still visible. */
-        WAITING_FOR_RESPONSE_VISIBLE,
-        
-        /** Player has not responded and the dot sets have 
-         * already been hidden after the flash time has passed. */
-        WAITING_FOR_RESPONSE_BLANK,
+        /** User is being shown the dots. */
+        DISPLAYING_DOTS,
 
         /** Displaying mask */
         MASK,
         
+        /** Question is being shown. Waiting for response from user. Recording reponse time. */
+        WAITING_FOR_RESPONSE,
+        
         /** Waiting for the player to press space to continue */
         PRESS_SPACE_TO_CONTINUE,
-        
-        NONE
     }
     
     private Object lock = new Object();
     
     private int numRoundsIntoBlock;
-    
-    /** Whether or not the user has provided feedback. */
-    private static boolean feedback_given;
-    
+        
     /** Alternate reference to "this" to be used in inner methods */
     private DotsGameController gameController;
         
@@ -281,7 +277,7 @@ public class DotsGameController implements GameController {
             theView.setGameScreen();
             theView.getPractice().setVisible(false);
             state = CurrentState.GAMEPLAY;
-            gameState = GameState.WAITING_FOR_RESPONSE_VISIBLE;
+            gameState = GameState.DISPLAYING_DOTS;
             if (isPractice == CurrentState.PRACTICE) {
                 this.resetPlayer();
             }
@@ -309,7 +305,7 @@ public class DotsGameController implements GameController {
             public void handle(KeyEvent event) {
                 if ((event.getCode() == KeyCode.F 
                         || event.getCode() == KeyCode.J) 
-                        /*&& !feedback_given*/ && gameState == GameState.WAITING_FOR_RESPONSE_BLANK) {
+                        /*&& !feedback_given*/ && gameState == GameState.WAITING_FOR_RESPONSE) {
                     gameController.handlePressForJ(event);
                 }
             }
@@ -321,7 +317,7 @@ public class DotsGameController implements GameController {
                         && gameState == GameState.PRESS_SPACE_TO_CONTINUE) {
                     theView.getPressSpaceText().setText("");
                     setOptions();
-                    gameState = GameState.WAITING_FOR_RESPONSE_VISIBLE;
+                    gameState = GameState.DISPLAYING_DOTS;
                 }
             }
             
@@ -360,10 +356,9 @@ public class DotsGameController implements GameController {
         if (state != CurrentState.PRACTICE) {
             this.numRoundsIntoBlock++;
         }
-        feedback_given = true;
-        if (gameState == GameState.WAITING_FOR_RESPONSE_BLANK) {
-            gameState = GameState.WAITING_BETWEEN_ROUNDS;
-        }
+//        if (gameState == GameState.WAITING_FOR_RESPONSE) {
+//            gameState = GameState.WAITING_BETWEEN_ROUNDS;
+//        }
         DotsPair dp = this.currentDotsPair;
         this.setYesCorrect(GameLogic.checkWhichSideCorrect(dp, dpg.getBlockMode()));
         boolean correct = GameLogic.checkAnswerCorrect(e, this.yesCorrect, this.FforTrue);
@@ -426,7 +421,6 @@ public class DotsGameController implements GameController {
      */
     public void prepareFirstRound() {
         this.setKeyGuides();
-        feedback_given = true;
         Task<Void> sleeper = new Task<Void>() {   
             @Override
             protected Void call() throws Exception {
@@ -441,8 +435,7 @@ public class DotsGameController implements GameController {
         sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent e) {
-                gameState = GameState.WAITING_FOR_RESPONSE_VISIBLE;
-                feedback_given = false;
+                gameState = GameState.DISPLAYING_DOTS;
                 
                 graphicsContextCanvas = theView.getDotsCanvas().getGraphicsContext2D();
                 
@@ -521,7 +514,7 @@ public class DotsGameController implements GameController {
      * then change the scene to the finish screen.
      */
     private void finishGame() {
-        theView.setFinishScreen(thePlayer.getNumCorrect(), backgroundNumber);
+        theView.setFinishScreen(thePlayer.getNumCorrect());
         theView.getScene().setOnKeyPressed(null);
     }
   
@@ -532,7 +525,6 @@ public class DotsGameController implements GameController {
     private void finishPractice() {
         theView.setPracticeCompleteScreen(dpg.getBlockMode());
         theView.getScene().setOnKeyPressed(null);
-        backgroundNumber = 0;
         state = CurrentState.PRACTICE_FINISHED;
         this.dpg.clearRatios();
     }
@@ -593,11 +585,7 @@ public class DotsGameController implements GameController {
         sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent e) {
-                if (feedback_given) {
-                    DotsGameController.gameState = GameState.WAITING_BETWEEN_ROUNDS;
-                } else {
-                    DotsGameController.gameState = GameState.WAITING_FOR_RESPONSE_BLANK;
-                }
+                DotsGameController.gameState = GameState.WAITING_FOR_RESPONSE;
                 responseTimeMetric = System.nanoTime();
                 theView.getMask().setVisible(false); 
                 setTheQuestion();
@@ -622,7 +610,6 @@ public class DotsGameController implements GameController {
         this.prepareNextPair();
         this.paintDots();
         this.hideDots();
-        feedback_given = false;
     }
     
     /**

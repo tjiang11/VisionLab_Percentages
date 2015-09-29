@@ -294,7 +294,7 @@ public final class SetUp {
      * @param primaryStage The stage.
      * @return The finishing scene.
      */
-    public static void setUpFinishScreen(GameGUI view, int points, int level) {      
+    public static void setUpFinishScreen(GameGUI view, int points) {      
         Label score = new Label();
         score.setText(Strings.YOU_EARNED_EN 
                 + points + Strings.POINTS_EN);
