@@ -29,12 +29,15 @@ public class DotsPair {
     /** The control type of this pair */
     private ControlType controlType;
 
+    /** Boolean variables for control type modes. */
     private static boolean TOTAL_AREA_CONTROL_ON;
     private static boolean EQUAL_AREAS_ONLY;
     private static boolean INVERSE_AREAS_ONLY;
     private static boolean AVERAGE_RADIUS_CONTROL;
     
-    private Random randomGenerator = new Random();    
+    /** Random number generator. */
+    private Random randomGenerator = new Random(); 
+    
     /** 
      * Constructor for DotsPair.
      * @param numDotsOne The number of dots in the first set.
@@ -57,6 +60,7 @@ public class DotsPair {
         }
     }
     
+    /** Load configuration settings. */
     private void loadConfig() {
         new Config();
         

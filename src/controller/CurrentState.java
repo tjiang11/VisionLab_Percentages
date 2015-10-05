@@ -11,7 +11,6 @@ public enum CurrentState {
     /** Introduction screen where user inputs Subject ID. */
     INTRODUCTION,
     
-    //////////////////////////////////////////////////////////////
     /** Practice rounds. */
     PRACTICE,
     
@@ -20,7 +19,6 @@ public enum CurrentState {
     
     /** The actual assessment where data is being recorded. */
     GAMEPLAY,
-    //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     
     /** After all trials have been completed. */
     FINISHED,

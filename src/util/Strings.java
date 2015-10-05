@@ -31,7 +31,7 @@ public class Strings {
     public static final String YES_SP = "Sí";
     public static final String NO_SP = "No";
     
-    public static final String ENTER_SUBJECT_ID_EN = "Enter your Subject ID";
+    public static final String ENTER_SUBJECT_ID_EN = "Enter your JHED ID";
     public static final String PICK_YOUR_GENDER_EN = "Pick your Gender";
     public static final String ENTER_AGE_EN = "Enter your age";
     public static final String START_EN = "Start";

@@ -11,6 +11,12 @@ import javafx.scene.input.KeyEvent;
  *
  */
 public final class GameLogic {
+    /**
+     * Check which answer choice, "Yes" or "No", is correct.
+     * @param dotsPair The current DotsPair being evaluated.
+     * @param blockMode The current block mode to evaluate by.
+     * @return true if "Yes" is correct. false if "No" is correct.
+     */
     public static boolean checkWhichSideCorrect(DotsPair dotsPair, int blockMode) {
         boolean yesCorrect = false;
         switch (blockMode) {
@@ -44,7 +50,7 @@ public final class GameLogic {
     /**
      * Checks whether subject's answer is correct or incorrect.
      * @param e The key event to check which key the user pressed.
-     * @param dotsPair The current AlphaPair being evaluated.
+     * @param dotsPair The current DotsPair being evaluated.
      * @return correct True if correct, false otherwise.
      */
     public static boolean checkAnswerCorrect(KeyEvent e, boolean yesCorrect, boolean FforTrue) {

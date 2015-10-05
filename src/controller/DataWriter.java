@@ -89,7 +89,7 @@ public class DataWriter {
     public void writeToCSV() {
         
         PrintWriter writer = null;
-        String subjectId = Integer.toString(this.player.getSubjectID());
+        String subjectId = this.player.getSubjectID();
         try {
             /** Grab path to project */
             String path = new File(".").getAbsolutePath();
@@ -203,8 +203,7 @@ public class DataWriter {
     }
     
     private String generateSubjectIdText() {
-        return Integer.toString(
-                this.player.getSubjectID());
+        return this.player.getSubjectID();
     }
     
     private String generateSubjectAgeText() {

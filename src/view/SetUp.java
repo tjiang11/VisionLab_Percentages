@@ -17,7 +17,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -118,14 +117,6 @@ public final class SetUp {
      * @return Scene the instructions scene
      */
     public static void setUpInstructionsScreen(GameGUI view) {
-        Rectangle r = new Rectangle();
-        r.setLayoutX(SCREEN_WIDTH * .09);
-        r.setLayoutY(SCREEN_HEIGHT * .07);
-        r.setWidth(SCREEN_WIDTH * .82);
-        r.setHeight(SCREEN_HEIGHT * .84);
-        r.setFill(Color.WHITESMOKE);
-        r.setOpacity(0.25);
-        
         Text instructionsText = new Text();
         instructionsText.setText(Strings.PRESS_NEXT_EN);
         instructionsText.setTextAlignment(TextAlignment.CENTER);
@@ -134,35 +125,56 @@ public final class SetUp {
         instructionsText.setFont(new Font("Century Gothic", 55));
         instructionsText.setWrappingWidth(SCREEN_WIDTH * .8);
         
+        view.setLeftKeyGuide(new Label());
+        view.setRightKeyGuide(new Label());
         view.setNext(new Button(Strings.NEXT_EN));
         view.getNext().setFont(new Font("Tahoma", 20));
         view.getNext().setPrefHeight(SCREEN_HEIGHT * .06);
         view.getNext().setPrefWidth(SCREEN_WIDTH * .1);
         view.getNext().setLayoutX(SCREEN_WIDTH / 2 - view.getNext().getPrefWidth() / 2);        
         view.getNext().setLayoutY(SCREEN_HEIGHT * .6);
-        view.getLayout().getChildren().setAll(r, instructionsText, view.getNext());
+        view.getLayout().getChildren().setAll(instructionsText, view.getNext(),
+                view.getLeftKeyGuide(), view.getRightKeyGuide());
+        configureKeyGuides(view);
     }
     
+    private static void configureKeyGuides(GameGUI view) {
+        view.getLeftKeyGuide().setFont(new Font("Tahoma", 50));
+        view.getLeftKeyGuide().setAlignment(Pos.CENTER);
+        view.getLeftKeyGuide().setPrefWidth(SCREEN_WIDTH * .4);
+        view.getLeftKeyGuide().setPrefHeight(SCREEN_HEIGHT * .1);
+        view.getLeftKeyGuide().setLayoutX((SetUp.SCREEN_WIDTH / 3) - view.getLeftKeyGuide().getPrefWidth() / 2);
+        view.getLeftKeyGuide().setLayoutY(SCREEN_HEIGHT * .7 - view.getLeftKeyGuide().getPrefHeight() / 2);
+        
+        view.getRightKeyGuide().setFont(new Font("Tahoma", 50));
+        view.getRightKeyGuide().setAlignment(Pos.CENTER);
+        view.getRightKeyGuide().setPrefWidth(SCREEN_WIDTH * .4);
+        view.getRightKeyGuide().setPrefHeight(SCREEN_HEIGHT * .1);
+        view.getRightKeyGuide().setLayoutX((SetUp.SCREEN_WIDTH / 3 * 2) - view.getRightKeyGuide().getPrefWidth() / 2);
+        view.getRightKeyGuide().setLayoutY(SCREEN_HEIGHT * .7 - view.getRightKeyGuide().getPrefHeight() / 2);
+    }
+
     /**
-     * Sets up the practice complete screen where user has finished completing the practice trials and
-     * is about to begin assessment.
+     * Sets up the "cycle" (Practice or Block) complete screen where user has finished completing the practice or block and
+     * is about to begin the next block.
      * @param view The graphical user interface.
      * @return scene the Scene containing the elements of this scene.
      */
-    public static void setUpPracticeCompleteScreen(GameGUI view, int blockMode, CurrentState state) {  
+    public static void setUpCycleCompleteScreen(GameGUI view, String colorOne, 
+            String colorTwo, int blockMode, CurrentState state) {  
         String question = null;
         switch (blockMode) {
         case 0:
-            question = "Is Blue more than Yellow?";
+            question = "Is " + colorOne + " more than " + colorTwo + "?";
             break;
         case 1:
-            question = "Is Green more than 50% of the total?";
+            question = "Is " + colorOne + " more than 50% of the total?";
             break;
         case 2:
-            question = "Is Purple more than 60% of the total?";
+            question = "Is " + colorOne + " more than 60% of the total?";
             break;
         case 3:
-            question = "Is Cyan more than 75% of the total?";
+            question = "Is " + colorOne + " more than 75% of the total?";
             break;
         }
         String blockOrPracticeComplete = null;
@@ -184,9 +196,10 @@ public final class SetUp {
         view.getPracticeComplete().setLayoutY(SetUp.SCREEN_HEIGHT * .3);
         view.getPracticeComplete().setLayoutX(SetUp.SCREEN_WIDTH / 2 - view.getPracticeComplete().getWrappingWidth() / 2);
         view.getStartAssessment().setPrefWidth(SCREEN_HEIGHT * .2);
-        view.getStartAssessment().setLayoutY(SetUp.SCREEN_HEIGHT * .6);
+        view.getStartAssessment().setLayoutY(SetUp.SCREEN_HEIGHT * .8);
         view.getStartAssessment().setLayoutX(SetUp.SCREEN_WIDTH / 2 - view.getStartAssessment().getPrefWidth() / 2);
-        view.getLayout().getChildren().setAll(view.getPracticeComplete(), view.getStartAssessment());
+        view.getLayout().getChildren().setAll(view.getPracticeComplete(), view.getStartAssessment(),
+                view.getLeftKeyGuide(), view.getRightKeyGuide());
         view.getScene().setCursor(Cursor.DEFAULT);
         view.getPracticeComplete().requestFocus();
     }
@@ -220,14 +233,11 @@ public final class SetUp {
         view.getQuestion().setFont(new Font("Tahoma", 50));
 
         view.setPressSpaceText(new Label());
-        view.setMask(new ImageView(new Image("/res/images/mask.png")));
-        
-        view.setLeftKeyGuide(new Label("TESASDT"));
-        view.setRightKeyGuide(new Label("TEASDSDAST"));
+        view.setMask(new ImageView(new Image("/res/images/mask2.png")));
         
         view.getLayout().getChildren().setAll(view.getGetReadyBox(),
                 view.getDotsCanvas(), view.getPractice(), view.getQuestion(), view.getPressSpaceText(),
-                view.getMask(), view.getLeftKeyGuide(), view.getRightKeyGuide());
+                view.getMask());
         
         view.getGetReadyBox().setPrefHeight(SCREEN_HEIGHT * .1);
         view.getGetReadyBox().setPrefWidth(SCREEN_WIDTH * .4);    
@@ -255,26 +265,12 @@ public final class SetUp {
         
         view.getMask().setLayoutY(SCREEN_HEIGHT * .25);
         
-        view.getMask().setScaleX(3.0);
-        view.getMask().setScaleY(2.0);
-        view.getMask().setFitWidth(500);
-        view.getMask().setLayoutX(SCREEN_WIDTH / 2 - view.getMask().getFitWidth() / 2);
+        view.getMask().setFitWidth(DOTS_CANVAS_WIDTH);
+        view.getMask().setFitHeight(DOTS_CANVAS_HEIGHT);
+        view.getMask().setLayoutX(DOTS_CANVAS_X);
+        view.getMask().setLayoutY(DOTS_CANVAS_Y);
         view.getMask().setVisible(false);
         view.getScene().setCursor(Cursor.NONE);
-        
-        view.getLeftKeyGuide().setFont(new Font("Tahoma", 40));
-        view.getLeftKeyGuide().setAlignment(Pos.CENTER);
-        view.getLeftKeyGuide().setPrefWidth(SCREEN_WIDTH * .4);
-        view.getLeftKeyGuide().setPrefHeight(SCREEN_HEIGHT * .1);
-        view.getLeftKeyGuide().setLayoutX((SetUp.SCREEN_WIDTH / 4) - view.getLeftKeyGuide().getPrefWidth() / 2);
-        view.getLeftKeyGuide().setLayoutY(SCREEN_HEIGHT * .9 - view.getLeftKeyGuide().getPrefHeight() / 2);
-        
-        view.getRightKeyGuide().setFont(new Font("Tahoma", 40));
-        view.getRightKeyGuide().setAlignment(Pos.CENTER);
-        view.getRightKeyGuide().setPrefWidth(SCREEN_WIDTH * .4);
-        view.getRightKeyGuide().setPrefHeight(SCREEN_HEIGHT * .1);
-        view.getRightKeyGuide().setLayoutX((SetUp.SCREEN_WIDTH / 4 * 3) - view.getRightKeyGuide().getPrefWidth() / 2);
-        view.getRightKeyGuide().setLayoutY(SCREEN_HEIGHT * .9 - view.getRightKeyGuide().getPrefHeight() / 2);
     }
 
     /**

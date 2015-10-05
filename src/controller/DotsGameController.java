@@ -1,10 +1,12 @@
 package controller;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Logger;
 
 import config.Config;
+import model.ColorPair;
 import model.DotSet;
 import model.DotsPair;
 import model.DotsPairGenerator;
@@ -57,7 +59,7 @@ public class DotsGameController implements GameController {
     private static Logger logger = Logger.getLogger("mylog");
     
     /** Color of the canvas. In this assessment, should be same color as background. */
-    final static Color CANVAS_COLOR = Color.GRAY;
+    final static Color CANVAS_COLOR = Color.web("#707070");
             
     /** Time in milliseconds for the player to get ready after pressing start */
     final static int GET_READY_TIME = 2000;
@@ -83,6 +85,8 @@ public class DotsGameController implements GameController {
     /** Canvas Graphics Context */
     private GraphicsContext graphicsContextCanvas;
     
+    /** Colors to use in each block */
+    private ArrayList<ColorPair> colorPairs;
     /** Color of the first DotSet */
     private Color dotsColorOne;
     /** Color of the second DotSet */
@@ -111,7 +115,6 @@ public class DotsGameController implements GameController {
     
     /** Describes the current state of gameplay */
     private static GameState gameState;
-    
     private enum GameState {
         /** User is being shown the dots. */
         DISPLAYING_DOTS,
@@ -124,15 +127,25 @@ public class DotsGameController implements GameController {
         
         /** Waiting for the player to press space to continue */
         PRESS_SPACE_TO_CONTINUE,
+        
+        /** Between blocks. (Not active gameplay) */
+        CHANGING_BLOCKS,
     }
     
+    /**
+     * Lock for locking threads.
+     */
     private Object lock = new Object();
-    
+    /** Number of rounds the player is into the current block. */
     private int numRoundsIntoBlock;
         
     /** Alternate reference to "this" to be used in inner methods */
     private DotsGameController gameController;
         
+    private static boolean feedback_given;
+    
+    private Random randomGenerator = new Random();
+    
     /** 
      * Constructor for the controller. There is only meant
      * to be one instance of the controller. Attaches listener
@@ -151,10 +164,19 @@ public class DotsGameController implements GameController {
         this.theScene = view.getScene();
         this.thePlayer = new Player();
         this.dataWriter = new DataWriter(this);
+        this.initializeColors();
         this.updateDotColors();
         this.setFandJ();
     }
     
+    private void initializeColors() {
+        this.colorPairs = new ArrayList<ColorPair>();
+        this.colorPairs.add(new ColorPair(Color.BLUE, Color.YELLOW, "Blue", "Yellow"));
+        this.colorPairs.add(new ColorPair(Color.web("#33CC33"), Color.RED, "Green", "Red"));
+        this.colorPairs.add(new ColorPair(Color.PURPLE, Color.ORANGE, "Purple", "Orange"));
+        this.colorPairs.add(new ColorPair(Color.CYAN, Color.BROWN, "Cyan", "Brown"));
+    }
+
     /** 
      * Load configuration settings. 
      */
@@ -164,9 +186,11 @@ public class DotsGameController implements GameController {
         TIME_BETWEEN_ROUNDS = Config.getPropertyInt("time.between.rounds");
     }
     
+    /**
+     * Determine which of F and J is for "Yes"/"No".
+     */
     private void setFandJ() {
-        Random random = new Random();
-        if (random.nextBoolean()) {
+        if (randomGenerator.nextBoolean()) {
             this.FforTrue = true;
             System.out.println("F for true");
         } else {
@@ -180,9 +204,7 @@ public class DotsGameController implements GameController {
      * Pass in the subject's ID number entered.
      */
     public void setLoginHandlers() {
-        
         this.theScene = theView.getScene();
-        
         this.theView.getStart().setOnAction(e -> 
             {
                 onClickStartButton();
@@ -215,7 +237,7 @@ public class DotsGameController implements GameController {
         theView.getFeedbackAge().setVisible(false);
         theView.getFeedbackGender().setVisible(false);
         try {
-            gameController.thePlayer.setSubjectID(Integer.parseInt(theView.getEnterId().getText()));
+            gameController.thePlayer.setSubjectID(theView.getEnterId().getText());
         } catch (NumberFormatException ex) {
             theView.getEnterId().requestFocus();
             theView.getEnterId().setText("");
@@ -239,6 +261,7 @@ public class DotsGameController implements GameController {
             return;
         }
         theView.setInstructionsScreen(); 
+        this.setKeyGuides();
     }
     
     /** 
@@ -268,16 +291,17 @@ public class DotsGameController implements GameController {
     }
     
     /**
-     * Set handler upon clicking the "Start Assessment" button, preparing for actual assessment.
-     * Sets the game screen and the state to GAMEPLAY from PRACTICE. Removes the "Practice" Label.
-     * Resets the player's data.
+     * "Cycle" = Practice or Block
+     * Set handler upon clicking the "Start Assessment" button, preparing for next block.
+     * Sets the game screen and the state to GAMEPLAY and removes the "Practice" label.
+     * Resets the player's data if coming from practice.
      */
-    public void setPracticeCompleteHandlers(CurrentState isPractice) {
+    public void setCycleCompleteHandlers(CurrentState isPractice) {
         this.theView.getStartAssessment().setOnAction( e-> {
             theView.setGameScreen();
             theView.getPractice().setVisible(false);
             state = CurrentState.GAMEPLAY;
-            gameState = GameState.DISPLAYING_DOTS;
+            gameState = GameState.CHANGING_BLOCKS;
             if (isPractice == CurrentState.PRACTICE) {
                 this.resetPlayer();
             }
@@ -288,7 +312,7 @@ public class DotsGameController implements GameController {
      * Reset the player data, but retain intrinsic subject data 
      */
     private void resetPlayer() {
-        SimpleIntegerProperty subjectID = new SimpleIntegerProperty(thePlayer.getSubjectID());
+        String subjectID = thePlayer.getSubjectID();
         Player.Gender subjectGender = thePlayer.getSubjectGender();
         SimpleIntegerProperty subjectAge = new SimpleIntegerProperty(thePlayer.getSubjectAge());
         thePlayer = new Player(subjectID, subjectGender, subjectAge);
@@ -305,7 +329,10 @@ public class DotsGameController implements GameController {
             public void handle(KeyEvent event) {
                 if ((event.getCode() == KeyCode.F 
                         || event.getCode() == KeyCode.J) 
-                        /*&& !feedback_given*/ && gameState == GameState.WAITING_FOR_RESPONSE) {
+                        && !feedback_given
+                        && (gameState == GameState.WAITING_FOR_RESPONSE 
+                        || gameState == GameState.MASK 
+                        || gameState == GameState.DISPLAYING_DOTS)) {
                     gameController.handlePressForJ(event);
                 }
             }
@@ -320,7 +347,6 @@ public class DotsGameController implements GameController {
                     gameState = GameState.DISPLAYING_DOTS;
                 }
             }
-            
         });
     }  
     
@@ -330,8 +356,18 @@ public class DotsGameController implements GameController {
      * @param event
      */
     private void handlePressForJ(KeyEvent event) {
+        feedback_given = true;
         this.responseAndUpdate(event);
-        this.prepareNextRound(); 
+        if (gameState == GameState.WAITING_FOR_RESPONSE) {
+            this.prepareNextRound(); 
+        } else if (gameState == GameState.DISPLAYING_DOTS) {
+            this.clearRound();
+        } else if (gameState == GameState.MASK) {
+            theView.getMask().setVisible(false);
+            showPressSpaceToContinue();
+        }
+        this.checkIfBlockDone();
+        this.checkIfDone();
         this.exportDataToCSV();
     }
     
@@ -356,9 +392,6 @@ public class DotsGameController implements GameController {
         if (state != CurrentState.PRACTICE) {
             this.numRoundsIntoBlock++;
         }
-//        if (gameState == GameState.WAITING_FOR_RESPONSE) {
-//            gameState = GameState.WAITING_BETWEEN_ROUNDS;
-//        }
         DotsPair dp = this.currentDotsPair;
         this.setYesCorrect(GameLogic.checkWhichSideCorrect(dp, dpg.getBlockMode()));
         boolean correct = GameLogic.checkAnswerCorrect(e, this.yesCorrect, this.FforTrue);
@@ -401,6 +434,10 @@ public class DotsGameController implements GameController {
         new AudioClip(feedbackSoundFileUrl.toString()).play();
     }
     
+    /**
+     * Set the text that lets the user know which of the F and J keys
+     * are "Yes"/"No".
+     */
     private void setKeyGuides() {
         if (this.FforTrue) {
             theView.getLeftKeyGuide().setText("F = Yes");
@@ -409,8 +446,6 @@ public class DotsGameController implements GameController {
             theView.getLeftKeyGuide().setText("F = No");
             theView.getRightKeyGuide().setText("J = Yes");
         }
-        theView.getLeftKeyGuide().setVisible(false);
-        theView.getRightKeyGuide().setVisible(false);
     }
     
     /**
@@ -420,7 +455,6 @@ public class DotsGameController implements GameController {
      * Also sets up the canvases on which the dots will be painted.
      */
     public void prepareFirstRound() {
-        this.setKeyGuides();
         Task<Void> sleeper = new Task<Void>() {   
             @Override
             protected Void call() throws Exception {
@@ -436,11 +470,8 @@ public class DotsGameController implements GameController {
             @Override
             public void handle(WorkerStateEvent e) {
                 gameState = GameState.DISPLAYING_DOTS;
-                
                 graphicsContextCanvas = theView.getDotsCanvas().getGraphicsContext2D();
-                
                 setOptions();
-                
                 responseTimeMetric = System.nanoTime();
                 theView.getGetReadyBox().setVisible(false);
             }
@@ -450,52 +481,38 @@ public class DotsGameController implements GameController {
     }
     
     /**
-     * Prepares the next round by recording reponse time,
-     * waiting, and creating the next round.
+     * Shows the user the screen to prompt pressing of space to continue.
      */
     public void prepareNextRound() {
         this.showPressSpaceToContinue(); 
-        this.checkIfBlockDone();
-        this.checkIfDone();
     }
     
+    /**
+     * Checks if the current block should be completed based on number of rounds.
+     */
     private void checkIfBlockDone() {
         this.lastBlock = this.dpg.getBlockMode();
         if (this.numRoundsIntoBlock >= NUM_QUESTIONS_PER_BLOCK) {
             this.numRoundsIntoBlock = 0;
             this.dpg.changeBlock();
             this.updateDotColors();
-            theView.setBlockCompleteScreen(dpg.getBlockMode());
+            theView.setBlockCompleteScreen(dpg.getBlockMode(), colorOne, colorTwo);
+            gameState = GameState.CHANGING_BLOCKS;
         }
     }
     
+    /**
+     * Get a new random pair of dot colors for the next block.
+     */
     private void updateDotColors() {
-        switch (this.dpg.getBlockMode()) {
-        case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
-            dotsColorOne = Color.BLUE;
-            dotsColorTwo = Color.YELLOW;
-            colorOne = "Blue";
-            colorTwo = "Yellow";
-            break;
-        case DotsPairGenerator.MORE_THAN_FIFTY_BLOCK:
-            dotsColorOne = Color.GREEN;
-            dotsColorTwo = Color.RED;
-            colorOne = "Green";
-            colorTwo = "Red";
-            break;
-        case DotsPairGenerator.MORE_THAN_SIXTY_BLOCK:
-            dotsColorOne = Color.PURPLE;
-            dotsColorTwo = Color.ORANGE;
-            colorOne = "Purple";
-            colorTwo = "Orange";
-            break;
-        case DotsPairGenerator.MORE_THAN_SEVENTYFIVE_BLOCK:
-            dotsColorOne = Color.CYAN;
-            dotsColorTwo = Color.BROWN;
-            colorOne = "Cyan";
-            colorTwo = "Brown";
-            break;
+        ColorPair selectedPair = null;
+        if (!this.colorPairs.isEmpty()) {
+            selectedPair = this.colorPairs.remove(randomGenerator.nextInt(colorPairs.size()));
         }
+        dotsColorOne = selectedPair.getColorOne();
+        dotsColorTwo = selectedPair.getColorTwo();
+        colorOne = selectedPair.getColorOneName();
+        colorTwo = selectedPair.getColorTwoName();
     }
     /** 
      * Check if subject has completed practice or assessment.
@@ -523,7 +540,7 @@ public class DotsGameController implements GameController {
      * then change the scene to the practice complete screen.
      */
     private void finishPractice() {
-        theView.setPracticeCompleteScreen(dpg.getBlockMode());
+        theView.setPracticeCompleteScreen(dpg.getBlockMode(), colorOne, colorTwo);
         theView.getScene().setOnKeyPressed(null);
         state = CurrentState.PRACTICE_FINISHED;
         this.dpg.clearRatios();
@@ -540,9 +557,10 @@ public class DotsGameController implements GameController {
         this.showMask();
     }
 
+    /**
+     * Show the question to user based on current block and colors.
+     */
     private void setTheQuestion() {
-        theView.getLeftKeyGuide().setVisible(true);
-        theView.getRightKeyGuide().setVisible(true);
         String colorOneName = this.colorOne;
         String colorTwoName = this.colorTwo;
         switch (this.dpg.getBlockMode()) {
@@ -563,7 +581,13 @@ public class DotsGameController implements GameController {
         }    
     }
 
+    /** 
+     * Show the mask for MASK_TIME milliseconds then either:
+     *  1.) If user has not answered - show the question
+     *  2.) If user has answered - tell user to press space to continue
+     */
     private void showMask() {
+        DotsGameController.gameState = GameState.MASK;
         theView.getMask().setVisible(true);
         Task<Void> sleeper = new Task<Void>() {
             @Override
@@ -585,21 +609,26 @@ public class DotsGameController implements GameController {
         sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent e) {
-                DotsGameController.gameState = GameState.WAITING_FOR_RESPONSE;
-                responseTimeMetric = System.nanoTime();
+                DotsGameController.gameState = GameState.WAITING_FOR_RESPONSE; 
                 theView.getMask().setVisible(false); 
-                setTheQuestion();
+                if (!feedback_given) {
+                    setTheQuestion();
+                } else {
+                    showPressSpaceToContinue();
+                }
+                
             }
         });
         Thread sleeperThread = new Thread(sleeper);
         sleeperThread.start();
     }
     
+    /**
+     * Clear the question and tell the user to press space to continue.
+     */
     private void showPressSpaceToContinue() {
         gameState = GameState.PRESS_SPACE_TO_CONTINUE;
-        theView.getQuestion().setText("");;
-        theView.getLeftKeyGuide().setVisible(false);
-        theView.getRightKeyGuide().setVisible(false);
+        theView.getQuestion().setText("");
         theView.getPressSpaceText().setText("Press space to continue");
     }
     
@@ -609,7 +638,9 @@ public class DotsGameController implements GameController {
     public void setOptions() {
         this.prepareNextPair();
         this.paintDots();
+        responseTimeMetric = System.nanoTime();
         this.hideDots();
+        feedback_given = false;
     }
     
     /**
@@ -642,15 +673,29 @@ public class DotsGameController implements GameController {
         Task<Void> sleeper = new Task<Void>() {
             @Override
             protected java.lang.Void call() throws Exception {
-                Thread.sleep(FLASH_TIME);
+                int i = 0;
+                 
+                while (i < FLASH_TIME) {
+                    synchronized (lock) {
+                        this.updateProgress(i, FLASH_TIME);
+                        Thread.sleep(1);
+                        i++;
+                        /** Quit and exit once F or J pressed */
+                        if (feedback_given == true) {
+                            return null;
+                        }
+                    }
+                }
+                
                 return null;
             }    
         };
         sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
-                gameController.clearRound();    
-                DotsGameController.gameState = GameState.MASK;
+                if (gameState == GameState.DISPLAYING_DOTS && feedback_given == false) {
+                    gameController.clearRound();    
+                }
             }
         });
         new Thread(sleeper).start();
@@ -658,7 +703,8 @@ public class DotsGameController implements GameController {
 
     /**
      * Paint the dots for a given dotset.
-     * @param 
+     * @param dotSet - the dotSet to be painted.
+     * @param graphicsContext
      */
     private void paintDotSet(DotSet dotSet, GraphicsContext graphicsContext) {
         for (int i = 0; i < dotSet.getTotalNumDots(); i++) {
@@ -674,6 +720,7 @@ public class DotsGameController implements GameController {
 
     /** 
      * Record the response time of the subject. 
+     * responseTimeMetric should be set whenever the dots are shown.
      */
     public void recordResponseTime() {
         long responseTime = System.nanoTime() - responseTimeMetric;

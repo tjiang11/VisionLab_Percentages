@@ -120,7 +120,7 @@ public class GameGUI {
         this.setPrimaryStage(stage);
         this.layout = new AnchorPane();
         this.scene = new Scene(this.layout, SetUp.SCREEN_WIDTH, SetUp.SCREEN_HEIGHT, Color.BLUE);
-        layout.setStyle("-fx-background-color:#808080;");
+        layout.setStyle("-fx-background-color:#707070;");
         this.primaryStage.setScene(this.scene);
         this.primaryStage.setTitle("Letter Game");  
         this.setLoginScreen();
@@ -152,14 +152,14 @@ public class GameGUI {
     /**
      * Sets the screen where user has finished practice trials and is about to begin assessment.
      */
-    public void setPracticeCompleteScreen(int blockMode) {
-        SetUp.setUpPracticeCompleteScreen(this, blockMode, CurrentState.PRACTICE);
-        this.DGC.setPracticeCompleteHandlers(CurrentState.PRACTICE);
+    public void setPracticeCompleteScreen(int blockMode, String colorOne, String colorTwo) {
+        SetUp.setUpCycleCompleteScreen(this, colorOne, colorTwo, blockMode, CurrentState.PRACTICE);
+        this.DGC.setCycleCompleteHandlers(CurrentState.PRACTICE);
     }
 
-    public void setBlockCompleteScreen(int blockMode) {
-        SetUp.setUpPracticeCompleteScreen(this, blockMode, CurrentState.GAMEPLAY);
-        this.DGC.setPracticeCompleteHandlers(CurrentState.GAMEPLAY);
+    public void setBlockCompleteScreen(int blockMode, String colorOne, String colorTwo) {
+        SetUp.setUpCycleCompleteScreen(this, colorOne, colorTwo, blockMode, CurrentState.GAMEPLAY);
+        this.DGC.setCycleCompleteHandlers(CurrentState.GAMEPLAY);
     }
     
     /**
