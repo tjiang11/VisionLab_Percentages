@@ -75,7 +75,7 @@ public class DotsPair {
      */
     private void scaleAreas() {
         if (this.controlType == ControlType.EQUAL_AREAS) {
-            this.matchAreas(dotSetOne, dotSetTwo);
+            this.matchAreas();
             return;
         }
         if (this.controlType == ControlType.INVERSE_AREAS) {
@@ -88,7 +88,7 @@ public class DotsPair {
     /** Choose a random scaling if none was specified. */
     private void randomScaleAreas() {
         if (randomGenerator.nextBoolean()) {
-            this.matchAreas(dotSetOne, dotSetTwo);
+            this.matchAreas();
             this.controlType = ControlType.EQUAL_AREAS;
         } else {
             this.inverseMatchAreas(dotSetOne, dotSetTwo);
@@ -116,7 +116,7 @@ public class DotsPair {
      * @param dotSetOne
      * @param dotSetTwo
      */
-    private void matchAreas(DotSet dotSetOne, DotSet dotSetTwo) {
+    private void matchAreas() {
         double totalAreaOne = this.dotSetOne.getTotalArea();
         double totalAreaTwo = this.dotSetTwo.getTotalArea();
         

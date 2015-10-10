@@ -3,7 +3,6 @@ package main;
 import view.GameGUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
-
 /**
  * @author Tony Jiang
  * 6-25-2015
