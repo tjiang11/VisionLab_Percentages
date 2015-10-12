@@ -315,7 +315,7 @@ public final class SetUp {
         view.setExitPopup(new Popup());
         view.getExitPopup().centerOnScreen();
         VBox quitBox = new VBox(8);
-        quitBox.setStyle("-fx-background-color: rgba(238, 238, 255, 0.5);"
+        quitBox.setStyle("-fx-background-color: rgba(238, 238, 255, 1);"
                 + "-fx-border-style: solid;"
                 + "-fx-border-width: 3px;");
         quitBox.setPadding(new Insets(30, 30, 30, 30));
@@ -333,6 +333,7 @@ public final class SetUp {
         });
         view.getExitPopup().setHideOnEscape(false);
         quitBox.getChildren().addAll(quitLabel, yesButton, noButton);
+        quitBox.toFront();
         view.getExitPopup().getContent().addAll(quitBox);
         quitLabel.requestFocus();
     }

@@ -221,6 +221,7 @@ public class DotsGameController implements GameController {
             public void handle(final KeyEvent keyEvent) {
                 if (keyEvent.getCode() == KeyCode.ESCAPE) {
                     theView.showExitPopup();
+                    theView.getExitPopup().getContent().get(0).toFront();
                     keyEvent.consume();
                 }
             }
@@ -532,7 +533,14 @@ public class DotsGameController implements GameController {
      */
     private void finishGame() {
         theView.setFinishScreen(thePlayer.getNumCorrect());
-        theView.getScene().setOnKeyPressed(null);
+        theView.getScene().setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.ESCAPE) {
+                    System.exit(0);
+                }
+            }
+        });
     }
   
     /**
