@@ -23,9 +23,6 @@ public class DotsPair {
     /** The second letter. */
     private DotSet dotSetTwo;
     
-    /** The difference in number of dots between the sets. */
-    private int difference;
-        
     /** The control type of this pair */
     private ControlType controlType;
 
@@ -157,16 +154,6 @@ public class DotsPair {
 
     public void setDotSetTwo(DotSet dotSetTwo) {
         this.dotSetTwo = dotSetTwo;
-    }
-
-
-    public int getDifference() {
-        return this.difference;
-    }
-
-
-    public void setDifference(int difference) {
-        this.difference = difference;
     }
 
     public ControlType getControlType() {

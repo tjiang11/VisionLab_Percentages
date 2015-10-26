@@ -46,7 +46,10 @@ public class DataWriter {
     public static final String RESPONSE_TIME = "Response Time";
     public static final String DATE_TIME = "Date/Time";
     public static final String CONSECUTIVE_ROUND = "Consecutive Rounds";
+    public static final String SECTION = "Section";
+    public static final String FEEDBACK_GIVEN = "Feedback given";
     public static final String KEY_FOR_YES = "Key for \"Yes\" ";
+    
     
     /** The subject to grab data from. */
     private Player player;
@@ -56,6 +59,7 @@ public class DataWriter {
     private DotsGameController dgc;
     private String colorOne;
     private String colorTwo;
+    private int section;
     
     /**
      * Constructor for data writer that takes in a controller
@@ -77,6 +81,7 @@ public class DataWriter {
         this.dotsPair = dgc.getCurrentDotsPair();
         this.colorOne = dgc.getColorOne();
         this.colorTwo = dgc.getColorTwo();
+        this.section = dgc.getDpg().getNumSections();
     }
     
     /**
@@ -150,6 +155,8 @@ public class DataWriter {
                 + RESPONSE_TIME + DELIMITER
                 + DATE_TIME + DELIMITER
                 + CONSECUTIVE_ROUND + DELIMITER
+                + SECTION + DELIMITER
+                + FEEDBACK_GIVEN + DELIMITER
                 + KEY_FOR_YES + "\n";
         return text;
     }
@@ -177,6 +184,8 @@ public class DataWriter {
         String responseTime = this.generateResponseTimeText();
         String dateTime = this.generateDateTimeText();
         String consecutiveRounds = this.generateConsecutiveRoundsText();
+        String section = this.generateSectionText();
+        String feedbackGiven = this.generateFeedbackGivenText();
         String keyForYes = this.generateKeyForYesText();
         
         String trialText = subjectID + DELIMITER
@@ -197,6 +206,8 @@ public class DataWriter {
                 + responseTime + DELIMITER
                 + dateTime + DELIMITER
                 + consecutiveRounds + DELIMITER
+                + section + DELIMITER
+                + feedbackGiven + DELIMITER
                 + keyForYes + "\n";
         
         return trialText;
@@ -314,6 +325,18 @@ public class DataWriter {
     private String generateConsecutiveRoundsText() {
         return Integer.toString(
                 this.player.getNumRounds());
+    }
+    
+    private String generateSectionText() {
+        return Integer.toString(this.section);
+    }
+    
+    private String generateFeedbackGivenText() {
+        if (this.section >= DotsGameController.SECTION_TO_START_FEEDBACK) {
+            return "Yes";
+        } else {
+            return "No";
+        }
     }
     
     private String generateKeyForYesText() {

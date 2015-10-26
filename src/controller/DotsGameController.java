@@ -66,6 +66,12 @@ public class DotsGameController implements GameController {
     
     /** Time in milliseconds to show mask */
     final static int MASK_TIME = 100;
+
+    /** Each section contains all four blocks. */
+    private static final int NUM_SECTIONS = 6;
+    
+    /** On which section should feedback begin to play. */
+    public static final int SECTION_TO_START_FEEDBACK = 4;
            
     /** Time between rounds in milliseconds. */
     static int TIME_BETWEEN_ROUNDS;
@@ -432,7 +438,9 @@ public class DotsGameController implements GameController {
             feedbackSoundFileUrl = 
                     getClass().getResource("/res/sounds/Basso.aiff");
         }
-        new AudioClip(feedbackSoundFileUrl.toString()).play();
+        if (this.dpg.getNumSections() >= SECTION_TO_START_FEEDBACK) {
+            new AudioClip(feedbackSoundFileUrl.toString()).play();
+        }
     }
     
     /**
@@ -507,9 +515,10 @@ public class DotsGameController implements GameController {
      */
     private void updateDotColors() {
         ColorPair selectedPair = null;
-        if (!this.colorPairs.isEmpty()) {
-            selectedPair = this.colorPairs.remove(randomGenerator.nextInt(colorPairs.size()));
+        if (this.colorPairs.isEmpty()) {
+            this.initializeColors();
         }
+        selectedPair = this.colorPairs.remove(randomGenerator.nextInt(colorPairs.size()));
         dotsColorOne = selectedPair.getColorOne();
         dotsColorTwo = selectedPair.getColorTwo();
         colorOne = selectedPair.getColorOneName();
@@ -520,7 +529,7 @@ public class DotsGameController implements GameController {
      */
     private void checkIfDone() {
         System.out.println(thePlayer.getNumRounds());
-        if (thePlayer.getNumRounds() >= NUM_ROUNDS) {
+        if (this.dpg.getNumSections() >= NUM_SECTIONS + 1) {
             this.finishGame();
         } else if (state == CurrentState.PRACTICE && thePlayer.getNumRounds() >= NUM_PRACTICE_ROUNDS) {
             this.finishPractice();
@@ -752,7 +761,7 @@ public class DotsGameController implements GameController {
         this.currentDotsPair = currentDotsPair;
     }
 
-    public DotsPairGenerator getApg() {
+    public DotsPairGenerator getDpg() {
         return dpg;
     }
 

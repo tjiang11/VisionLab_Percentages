@@ -54,6 +54,9 @@ public class DotsPairGenerator {
     /** The current block setting */
     private int blockMode;
     
+    /** Each 'section' contains four blocks. */
+    private int numSections;
+    
     /** List containing the blocks. */
     private ArrayList<Integer> blockSet;
     
@@ -78,6 +81,7 @@ public class DotsPairGenerator {
         this.setLastWasBig(false);
         this.blockSet = new ArrayList<Integer>();
         this.ratiosBucket = new ArrayList<Ratio>();
+        this.setNumSections(0);
         this.fillBlockSet();
     }
     
@@ -96,6 +100,7 @@ public class DotsPairGenerator {
             System.out.println(this.blockSet.toString());
         }
         this.blockMode = this.blockSet.get(0);
+        this.numSections++;
     }
     
     /** 
@@ -295,6 +300,9 @@ public class DotsPairGenerator {
         this.blockSet.remove(0);
         if (!this.blockSet.isEmpty()) {
             this.blockMode = this.blockSet.get(0);
+        } else {
+            this.fillBlockSet();
+            this.blockMode = this.blockSet.get(0);
         }
         this.ratiosBucket.clear();
     }
@@ -333,5 +341,13 @@ public class DotsPairGenerator {
 
     public void setBlockMode(int blockMode) {
         this.blockMode = blockMode;
+    }
+
+    public int getNumSections() {
+        return numSections;
+    }
+
+    public void setNumSections(int numSections) {
+        this.numSections = numSections;
     }
 }
