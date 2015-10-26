@@ -198,10 +198,8 @@ public class DotsGameController implements GameController {
     private void setFandJ() {
         if (randomGenerator.nextBoolean()) {
             this.FforTrue = true;
-            System.out.println("F for true");
         } else {
             this.FforTrue = false;
-            System.out.println("J for true");
         }
     }
     
@@ -528,7 +526,6 @@ public class DotsGameController implements GameController {
      * Check if subject has completed practice or assessment.
      */
     private void checkIfDone() {
-        System.out.println(thePlayer.getNumRounds());
         if (this.dpg.getNumSections() >= NUM_SECTIONS + 1) {
             this.finishGame();
         } else if (state == CurrentState.PRACTICE && thePlayer.getNumRounds() >= NUM_PRACTICE_ROUNDS) {

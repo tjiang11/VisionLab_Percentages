@@ -1,7 +1,12 @@
 package model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 /**
  * @author Tony Jiang
  * 6-25-2015
@@ -30,6 +35,9 @@ import java.util.Random;
  *
  */
 public class DotsPairGenerator {
+    
+    /** Logger */
+    private static Logger logger = Logger.getLogger("mylog");
     
     /** Maximum number of total dots to be shown in one trial. */
     static final int MAX_DOTS = 60;
@@ -78,11 +86,32 @@ public class DotsPairGenerator {
      * Constructor. 
      */
     public DotsPairGenerator() {
+        this.initLogger();
         this.setLastWasBig(false);
         this.blockSet = new ArrayList<Integer>();
         this.ratiosBucket = new ArrayList<Ratio>();
         this.setNumSections(0);
         this.fillBlockSet();
+    }
+    
+    private void initLogger() {
+        FileHandler fh;  
+        try {  
+
+            // This block configure the logger with handler and formatter  
+            fh = new FileHandler("myLog.log");  
+            logger.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();  
+            fh.setFormatter(formatter);  
+
+            // the following statement is used to log any messages  
+            logger.info("My first log");  
+
+        } catch (SecurityException e) {  
+            e.printStackTrace();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        } 
     }
     
     /**
@@ -97,7 +126,7 @@ public class DotsPairGenerator {
         int size = tempSet.size();
         for (int i = 0; i < size; i++) {
             this.blockSet.add((Integer) tempSet.remove(randomGenerator.nextInt(tempSet.size())));
-            System.out.println(this.blockSet.toString());
+            logger.log(Level.INFO, this.blockSet.toString());
         }
         this.blockMode = this.blockSet.get(0);
         this.numSections++;
@@ -167,7 +196,7 @@ public class DotsPairGenerator {
                 this.ratiosBucket.add(new Ratio(24,1));
             break;
         }
-        System.out.println(this.ratiosBucket.toString());
+        logger.log(Level.INFO, this.ratiosBucket.toString());
     }
     
     /**
@@ -191,9 +220,9 @@ public class DotsPairGenerator {
             numDotsTwo += ratioNumTwo;
         }
         this.checkAndSet(numDotsOne, numDotsTwo);
-        System.out.println(numDotsOne + " " + numDotsTwo);
-        System.out.println((double) numDotsOne / (numDotsOne + numDotsTwo));
-        System.out.println((double) numDotsTwo / (numDotsOne + numDotsTwo));
+        logger.log(Level.INFO, numDotsOne + " " + numDotsTwo);
+        logger.log(Level.INFO, Double.toString((double) numDotsOne / (numDotsOne + numDotsTwo)));
+        logger.log(Level.INFO, Double.toString((double) numDotsTwo / (numDotsOne + numDotsTwo)));
     }
     
     /**

@@ -1,0 +1,22 @@
+Oct 26, 2015 2:46:52 PM model.DotsPairGenerator initLogger
+INFO: My first log
+Oct 26, 2015 2:46:52 PM model.DotsPairGenerator fillBlockSet
+INFO: [2]
+Oct 26, 2015 2:46:52 PM model.DotsPairGenerator fillBlockSet
+INFO: [2, 3]
+Oct 26, 2015 2:46:52 PM model.DotsPairGenerator fillBlockSet
+INFO: [2, 3, 1]
+Oct 26, 2015 2:46:52 PM model.DotsPairGenerator fillBlockSet
+INFO: [2, 3, 1, 0]
+Oct 26, 2015 2:46:57 PM model.DotsPairGenerator fillRatiosBucket
+INFO: [{11,14}, {12,13}, {13,12}, {4,3}, {5,3}, {13,7}, {18,7}, {19,6}]
+Oct 26, 2015 2:46:57 PM model.DotsPairGenerator getNewPair
+INFO: 13 12
+Oct 26, 2015 2:46:57 PM model.DotsPairGenerator getNewPair
+INFO: 0.52
+Oct 26, 2015 2:46:57 PM model.DotsPairGenerator getNewPair
+INFO: 0.48
+Oct 26, 2015 2:46:57 PM controller.DotsGameController recordResponseTime
+INFO: Response time: 0.189034085
+Oct 26, 2015 2:46:57 PM controller.DotsGameController$9 call
+INFO: MASK
