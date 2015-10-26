@@ -3,6 +3,7 @@ package controller;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import config.Config;
@@ -267,6 +268,9 @@ public class DotsGameController implements GameController {
         }
         theView.setInstructionsScreen(); 
         this.setKeyGuides();
+        logger.log(Level.INFO, "Subject ID: " + thePlayer.getSubjectID());
+        logger.log(Level.INFO, "Subject Gender: " + thePlayer.getSubjectGender());
+        logger.log(Level.INFO, "Subject Age: "  + thePlayer.getSubjectAge());
     }
     
     /** 
