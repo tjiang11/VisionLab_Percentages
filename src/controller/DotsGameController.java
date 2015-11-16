@@ -2,6 +2,8 @@ package controller;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -122,6 +124,16 @@ public class DotsGameController implements GameController {
     
     /** Describes the current state of gameplay */
     private static GameState gameState;
+    
+    private static final Color BLUE = Color.BLUE;
+    private static final Color YELLOW = Color.YELLOW;
+    private static final Color GREEN = Color.web("#33CC33");
+    private static final Color RED = Color.RED;
+    private static final Color PURPLE = Color.PURPLE;
+    private static final Color ORANGE = Color.ORANGE;
+    private static final Color BROWN = Color.BROWN;
+    private static final Color CYAN = Color.CYAN;
+    
     private enum GameState {
         /** User is being shown the dots. */
         DISPLAYING_DOTS,
@@ -173,15 +185,16 @@ public class DotsGameController implements GameController {
         this.dataWriter = new DataWriter(this);
         this.initializeColors();
         this.updateDotColors();
+        this.changeMaskColor();
         this.setFandJ();
     }
     
     private void initializeColors() {
         this.colorPairs = new ArrayList<ColorPair>();
-        this.colorPairs.add(new ColorPair(Color.BLUE, Color.YELLOW, "Blue", "Yellow"));
-        this.colorPairs.add(new ColorPair(Color.web("#33CC33"), Color.RED, "Green", "Red"));
-        this.colorPairs.add(new ColorPair(Color.PURPLE, Color.ORANGE, "Purple", "Orange"));
-        this.colorPairs.add(new ColorPair(Color.CYAN, Color.BROWN, "Cyan", "Brown"));
+        this.colorPairs.add(new ColorPair(BLUE, YELLOW, "Blue", "Yellow"));
+        this.colorPairs.add(new ColorPair(GREEN, RED, "Green", "Red"));
+        this.colorPairs.add(new ColorPair(PURPLE, ORANGE, "Purple", "Orange"));
+        this.colorPairs.add(new ColorPair(CYAN, BROWN, "Cyan", "Brown"));
     }
 
     /** 
@@ -507,6 +520,7 @@ public class DotsGameController implements GameController {
             this.numRoundsIntoBlock = 0;
             this.dpg.changeBlock();
             this.updateDotColors();
+            this.changeMaskColor();
             theView.setBlockCompleteScreen(dpg.getBlockMode(), colorOne, colorTwo);
             gameState = GameState.CHANGING_BLOCKS;
         }
@@ -583,7 +597,13 @@ public class DotsGameController implements GameController {
         String colorTwoName = this.colorTwo;
         switch (this.dpg.getBlockMode()) {
         case DotsPairGenerator.MORE_THAN_HALF_BLOCK:
-            theView.getQuestion().setText("Is " + colorOneName + " more than " + colorTwoName + "?");
+            if (this.FforTrue) {
+                theView.getQuestion().setText("If " + colorOneName + " is greater in number, press F;\n"
+                        + "if " + colorTwoName + " is greater in number, press J.");
+            } else {
+                theView.getQuestion().setText("If " + colorOneName + " is greater in number, press J\n; "
+                        + "if " + colorTwoName + " is greater in number, press F.");
+            }
             break;
         case DotsPairGenerator.MORE_THAN_FIFTY_BLOCK:
             theView.getQuestion().setText("Is " + colorOneName + " more than 50% of the total?");
@@ -639,6 +659,18 @@ public class DotsGameController implements GameController {
         });
         Thread sleeperThread = new Thread(sleeper);
         sleeperThread.start();
+    }
+    
+    private void changeMaskColor() {
+        ArrayList<String> maskColorChoices = new ArrayList<String>();
+        Collections.addAll(maskColorChoices,
+                "Blue", "Yellow",
+                "Orange", "Purple",
+                "Green", "Red",
+                "Brown", "Cyan");
+        maskColorChoices.removeAll(Arrays.asList(colorOne, colorTwo));
+        System.out.println(maskColorChoices.toString());
+        theView.changeMaskColor(maskColorChoices.get(randomGenerator.nextInt(maskColorChoices.size())));
     }
     
     /**

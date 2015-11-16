@@ -233,7 +233,6 @@ public final class SetUp {
         view.getQuestion().setFont(new Font("Tahoma", 50));
 
         view.setPressSpaceText(new Label());
-        view.setMask(new ImageView(new Image("/res/images/mask2.png")));
         
         view.getLayout().getChildren().setAll(view.getGetReadyBox(),
                 view.getDotsCanvas(), view.getPractice(), view.getQuestion(), view.getPressSpaceText(),
@@ -250,20 +249,21 @@ public final class SetUp {
         view.getPractice().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getPractice().getPrefWidth() / 2));
         view.getPractice().setLayoutY(SetUp.SCREEN_HEIGHT * .04);
         
-        view.getQuestion().setPrefHeight(SCREEN_HEIGHT * .2);
+        view.getQuestion().setPrefHeight(SCREEN_HEIGHT * .5);
         view.getQuestion().setPrefWidth(SCREEN_WIDTH * .8);
+        view.getQuestion().setWrapText(true);
         view.getQuestion().setAlignment(Pos.CENTER);
+        view.getQuestion().setTextAlignment(TextAlignment.CENTER);
         view.getQuestion().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getQuestion().getPrefWidth() / 2));
-        view.getQuestion().setLayoutY(SetUp.SCREEN_HEIGHT * .35);
+        view.getQuestion().setLayoutY(SetUp.SCREEN_HEIGHT * .2);
         
         view.getPressSpaceText().setPrefHeight(SCREEN_HEIGHT * .2);
         view.getPressSpaceText().setPrefWidth(SCREEN_WIDTH * .8);
         view.getPressSpaceText().setAlignment(Pos.CENTER);
+        view.getPressSpaceText().setTextAlignment(TextAlignment.CENTER);
         view.getPressSpaceText().setLayoutX((SetUp.SCREEN_WIDTH / 2) - (view.getQuestion().getPrefWidth() / 2));
         view.getPressSpaceText().setLayoutY(SetUp.SCREEN_HEIGHT * .35);
         view.getPressSpaceText().setFont(new Font("Tahoma", 30));
-        
-        view.getMask().setLayoutY(SCREEN_HEIGHT * .25);
         
         view.getMask().setFitWidth(DOTS_CANVAS_WIDTH);
         view.getMask().setFitHeight(DOTS_CANVAS_HEIGHT);
@@ -346,5 +346,20 @@ public final class SetUp {
         view.getScene().setCursor(Cursor.DEFAULT);
         view.getExitPopup().show(view.getPrimaryStage());  
         view.getExitPopup().getContent().get(0).requestFocus();
+    }
+    
+    /**
+     * Change the color of the mask.
+     * @param view
+     * @param color Color to be changed to.
+     */
+    public static void changeMaskColor(GameGUI view, String color) {
+        view.setMask(new ImageView());
+        view.getMask().setImage(new Image("/res/images/mask_" + color.toLowerCase() + ".png"));
+        view.getMask().setFitWidth(DOTS_CANVAS_WIDTH);
+        view.getMask().setFitHeight(DOTS_CANVAS_HEIGHT);
+        view.getMask().setLayoutX(DOTS_CANVAS_X);
+        view.getMask().setLayoutY(DOTS_CANVAS_Y);
+        view.getMask().setVisible(false);
     }
 }

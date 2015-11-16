@@ -2,9 +2,6 @@ package test;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -14,7 +11,6 @@ import org.junit.Test;
 
 import view.GameGUI;
 import model.ControlType;
-import model.DotSet;
 import model.DotsPair;
 
 public class TestDotsPair {

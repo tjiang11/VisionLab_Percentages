@@ -428,4 +428,8 @@ public class GameGUI {
     public void setRightKeyGuide(Label rightKeyGuide) {
         this.rightKeyGuide = rightKeyGuide;
     }
+    
+    public void changeMaskColor(String color) {
+        SetUp.changeMaskColor(this, color);
+    }
 }
