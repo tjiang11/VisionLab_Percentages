@@ -1,66 +1,8 @@
-Nov 16, 2015 2:12:53 PM model.DotsPairGenerator fillBlockSet
-INFO: [3]
-Nov 16, 2015 2:12:53 PM model.DotsPairGenerator fillBlockSet
-INFO: [3, 0]
-Nov 16, 2015 2:12:53 PM model.DotsPairGenerator fillBlockSet
-INFO: [3, 0, 2]
-Nov 16, 2015 2:12:53 PM model.DotsPairGenerator fillBlockSet
-INFO: [3, 0, 2, 1]
-Nov 16, 2015 2:12:56 PM controller.DotsGameController onClickStartButton
-INFO: Subject ID: 43
-Nov 16, 2015 2:12:56 PM controller.DotsGameController onClickStartButton
-INFO: Subject Gender: MALE
-Nov 16, 2015 2:12:56 PM controller.DotsGameController onClickStartButton
-INFO: Subject Age: 544
-Nov 16, 2015 2:12:59 PM model.DotsPairGenerator fillRatiosBucket
-INFO: [{7,6}, {3,2}, {2,1}, {18,7}, {18,5}, {21,4}, {9,1}, {24,1}]
-Nov 16, 2015 2:12:59 PM model.DotsPairGenerator getNewPair
-INFO: 24 1
-Nov 16, 2015 2:12:59 PM model.DotsPairGenerator getNewPair
-INFO: 0.96
-Nov 16, 2015 2:12:59 PM model.DotsPairGenerator getNewPair
-INFO: 0.04
-Nov 16, 2015 2:12:59 PM controller.DotsGameController recordResponseTime
-INFO: Response time: 0.077492817
-Nov 16, 2015 2:12:59 PM controller.DotsGameController$9 call
-INFO: MASK
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 18 7
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 0.72
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 0.28
-Nov 16, 2015 2:13:00 PM controller.DotsGameController recordResponseTime
-INFO: Response time: 0.165856514
-Nov 16, 2015 2:13:00 PM controller.DotsGameController$9 call
-INFO: MASK
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 18 12
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 0.6
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 0.4
-Nov 16, 2015 2:13:00 PM controller.DotsGameController recordResponseTime
-INFO: Response time: 0.182571012
-Nov 16, 2015 2:13:00 PM controller.DotsGameController$9 call
-INFO: MASK
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 18 5
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 0.782608695652174
-Nov 16, 2015 2:13:00 PM model.DotsPairGenerator getNewPair
-INFO: 0.21739130434782608
-Nov 16, 2015 2:13:00 PM controller.DotsGameController recordResponseTime
-INFO: Response time: 0.138974594
-Nov 16, 2015 2:13:00 PM controller.DotsGameController$9 call
-INFO: MASK
-Nov 16, 2015 2:13:01 PM model.DotsPairGenerator fillRatiosBucket
-INFO: [{7,6}, {3,2}, {2,1}, {18,7}, {18,5}, {21,4}, {9,1}, {24,1}]
-Nov 16, 2015 2:13:01 PM model.DotsPairGenerator getNewPair
-INFO: 21 18
-Nov 16, 2015 2:13:01 PM model.DotsPairGenerator getNewPair
-INFO: 0.5384615384615384
-Nov 16, 2015 2:13:01 PM model.DotsPairGenerator getNewPair
-INFO: 0.46153846153846156
-Nov 16, 2015 2:13:01 PM controller.DotsGameController$9 call
-INFO: MASK
+Jan 06, 2016 8:04:26 PM model.DotsPairGenerator fillBlockSet
+INFO: [1]
+Jan 06, 2016 8:04:26 PM model.DotsPairGenerator fillBlockSet
+INFO: [1, 3]
+Jan 06, 2016 8:04:26 PM model.DotsPairGenerator fillBlockSet
+INFO: [1, 3, 2]
+Jan 06, 2016 8:04:26 PM model.DotsPairGenerator fillBlockSet
+INFO: [1, 3, 2, 0]

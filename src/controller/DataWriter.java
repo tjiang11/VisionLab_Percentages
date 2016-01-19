@@ -33,6 +33,7 @@ public class DataWriter {
     public static final String SUBJECT_GENDER = "Subject Gender";
     public static final String LEFT_CHOICE = "Left Choice";
     public static final String RIGHT_CHOICE = "Right Choice";
+    public static final String TOTAL_DOTS = "Total Dots";
     public static final String WHICH_SIDE_CORRECT = "Side Correct";
     public static final String WHICH_SIDE_PICKED = "Side Picked";
     public static final String IS_CORRECT = "Correct";
@@ -142,6 +143,7 @@ public class DataWriter {
                 + SUBJECT_GENDER + DELIMITER
                 + LEFT_CHOICE + DELIMITER
                 + RIGHT_CHOICE + DELIMITER
+                + TOTAL_DOTS + DELIMITER
                 + WHICH_SIDE_CORRECT + DELIMITER
                 + WHICH_SIDE_PICKED + DELIMITER
                 + IS_CORRECT + DELIMITER
@@ -171,6 +173,7 @@ public class DataWriter {
         String subjectGender = this.generateSubjectGenderText();
         String leftChoice = this.generateLeftChoiceText();       
         String rightChoice = this.generateRightChoiceText();
+        String totalDots = this.generateTotalDotsText();
         String whichSideCorrect = this.generateWhichSideCorrectText();
         String whichSidePicked = this.generateWhichSidePickedText(whichSideCorrect);
         String correct = this.generateCorrectText();
@@ -193,6 +196,7 @@ public class DataWriter {
                 + subjectGender + DELIMITER
                 + leftChoice + DELIMITER
                 + rightChoice + DELIMITER
+                + totalDots + DELIMITER
                 + whichSideCorrect + DELIMITER
                 + whichSidePicked + DELIMITER
                 + correct + DELIMITER
@@ -234,6 +238,12 @@ public class DataWriter {
     private String generateRightChoiceText() {
         return Integer.toString(
                 this.dotsPair.getDotSetTwo().getPositions().size());
+    }
+    
+    private String generateTotalDotsText() {
+        return Integer.toString(
+                this.dotsPair.getDotSetOne().getPositions().size()
+                + this.dotsPair.getDotSetTwo().getPositions().size());
     }
     
     private String generateWhichSideCorrectText() {

@@ -7,6 +7,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
 /**
  * @author Tony Jiang
  * 6-25-2015
@@ -34,7 +35,7 @@ import java.util.logging.SimpleFormatter;
  * in one trial.
  *
  */
-public class DotsPairGenerator {
+public class DotsPairGenerator implements DotsPairGeneratorInterface {
     
     /** Logger */
     private static Logger logger = Logger.getLogger("mylog");
@@ -160,34 +161,34 @@ public class DotsPairGenerator {
         switch (this.blockMode) {
         case MORE_THAN_FIFTY_BLOCK:
         case MORE_THAN_HALF_BLOCK:
-                this.ratiosBucket.add(new Ratio(9,16));
-                this.ratiosBucket.add(new Ratio(2,3));
-                this.ratiosBucket.add(new Ratio(11,14));
-                this.ratiosBucket.add(new Ratio(12,13));
-                this.ratiosBucket.add(new Ratio(13,12));
-                this.ratiosBucket.add(new Ratio(14,11));
-                this.ratiosBucket.add(new Ratio(3,2));
-                this.ratiosBucket.add(new Ratio(16,9));
+                this.ratiosBucket.add(new Ratio(4,7)); //25, 5:9? 
+                this.ratiosBucket.add(new Ratio(2,3)); //5
+                this.ratiosBucket.add(new Ratio(4,5)); //25 4:5?
+                this.ratiosBucket.add(new Ratio(12,13)); //25
+                this.ratiosBucket.add(new Ratio(13,12)); //25
+                this.ratiosBucket.add(new Ratio(5,4)); //25 5:4?
+                this.ratiosBucket.add(new Ratio(3,2)); //5
+                this.ratiosBucket.add(new Ratio(7,4)); //25
             break;
         case MORE_THAN_SIXTY_BLOCK:
-                this.ratiosBucket.add(new Ratio(11,14));
-                this.ratiosBucket.add(new Ratio(12,13));
-                this.ratiosBucket.add(new Ratio(13,12));
-                this.ratiosBucket.add(new Ratio(4,3));
-                this.ratiosBucket.add(new Ratio(5,3));
-                this.ratiosBucket.add(new Ratio(13,7));
-                this.ratiosBucket.add(new Ratio(18,7));
-                this.ratiosBucket.add(new Ratio(19,6));
+                this.ratiosBucket.add(new Ratio(4,5)); //25 4:5?
+                this.ratiosBucket.add(new Ratio(5,5)); //25 6:7?
+                this.ratiosBucket.add(new Ratio(11,9)); //25
+                this.ratiosBucket.add(new Ratio(4,3)); //7
+                this.ratiosBucket.add(new Ratio(5,3)); //8
+                this.ratiosBucket.add(new Ratio(2,1)); //20 66.6%
+                this.ratiosBucket.add(new Ratio(7,3)); //25 71%
+                this.ratiosBucket.add(new Ratio(3,1)); //25 3:1?
             break;
         case MORE_THAN_SEVENTYFIVE_BLOCK:
-                this.ratiosBucket.add(new Ratio(7,6));
-                this.ratiosBucket.add(new Ratio(3,2));
-                this.ratiosBucket.add(new Ratio(2,1));
-                this.ratiosBucket.add(new Ratio(18,7));
-                this.ratiosBucket.add(new Ratio(18,5));
-                this.ratiosBucket.add(new Ratio(21,4));
-                this.ratiosBucket.add(new Ratio(9,1));
-                this.ratiosBucket.add(new Ratio(24,1));
+                this.ratiosBucket.add(new Ratio(3,2)); //13
+                this.ratiosBucket.add(new Ratio(2,1)); //5
+                this.ratiosBucket.add(new Ratio(7,3)); //3
+                this.ratiosBucket.add(new Ratio(11,4)); //25 5:2?
+                this.ratiosBucket.add(new Ratio(7,2)); //23 7:2?
+                this.ratiosBucket.add(new Ratio(4,1)); //25 4:1?
+                this.ratiosBucket.add(new Ratio(17,3)); //10
+                this.ratiosBucket.add(new Ratio(9,1)); //25
             break;
         }
         logger.log(Level.INFO, this.ratiosBucket.toString());
@@ -208,7 +209,7 @@ public class DotsPairGenerator {
             numDotsTwo += ratioNumTwo;
         }
         int max = (MAX_DOTS - (numDotsOne + numDotsTwo)) / (ratioNumOne + ratioNumTwo);
-        int randMax = randomGenerator.nextInt(max);
+        int randMax = randomGenerator.nextInt(max + 1);
         for (int i = 0; i < randMax; i++) {
             numDotsOne += ratioNumOne;
             numDotsTwo += ratioNumTwo;

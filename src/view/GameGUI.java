@@ -1,5 +1,9 @@
 package view;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import injector.AppInjector;
 import controller.CurrentState;
 import controller.DotsGameController;
 import javafx.scene.Scene;
@@ -116,13 +120,16 @@ public class GameGUI {
      * @throws IOException 
      */
     public GameGUI(Stage stage) {
-        DGC = new DotsGameController(this);
+        Injector injector = Guice.createInjector(new AppInjector()); 
+        DGC = injector.getInstance(DotsGameController.class);
+        DGC.setView(this);
+        DGC.changeMaskColor();
         this.setPrimaryStage(stage);
         this.layout = new AnchorPane();
         this.scene = new Scene(this.layout, SetUp.SCREEN_WIDTH, SetUp.SCREEN_HEIGHT, Color.BLUE);
         layout.setStyle("-fx-background-color:#707070;");
         this.primaryStage.setScene(this.scene);
-        this.primaryStage.setTitle("Letter Game");  
+        this.primaryStage.setTitle("Dots 50, 60, 75!");  
         this.setLoginScreen();
         this.primaryStage.setResizable(false);
         this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);

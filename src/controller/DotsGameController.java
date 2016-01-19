@@ -8,11 +8,14 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.inject.Inject;
+
 import config.Config;
 import model.ColorPair;
 import model.DotSet;
 import model.DotsPair;
 import model.DotsPairGenerator;
+import model.DotsPairGeneratorInterface;
 import model.GameLogic;
 import model.Player;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -86,7 +89,7 @@ public class DotsGameController implements GameController {
     private DataWriter dataWriter;
     
     /** DotsPairGenerator to generate an DotsPair */
-    private DotsPairGenerator dpg;
+    private DotsPairGeneratorInterface dpg;
     /** The graphical user interface. */
     private GameGUI theView;
     /** The current scene. */
@@ -172,20 +175,19 @@ public class DotsGameController implements GameController {
      * prepare the next round and record the data.
      * @param view The graphical user interface.
      */
-    public DotsGameController(GameGUI view) {
-        
+    @Inject
+    public DotsGameController(DotsPairGeneratorInterface dpg) {
         loadConfig();
-        
         this.gameController = this;
-        this.dpg = new DotsPairGenerator();
+        this.dpg = dpg;
         this.currentDotsPair = null;
-        this.theView = view;
-        this.theScene = view.getScene();
+//        this.theView = view;
+//        this.theScene = view.getScene();
         this.thePlayer = new Player();
         this.dataWriter = new DataWriter(this);
         this.initializeColors();
         this.updateDotColors();
-        this.changeMaskColor();
+//        this.changeMaskColor();
         this.setFandJ();
     }
     
@@ -661,7 +663,7 @@ public class DotsGameController implements GameController {
         sleeperThread.start();
     }
     
-    private void changeMaskColor() {
+    public void changeMaskColor() {
         ArrayList<String> maskColorChoices = new ArrayList<String>();
         Collections.addAll(maskColorChoices,
                 "Blue", "Yellow",
@@ -794,7 +796,7 @@ public class DotsGameController implements GameController {
         this.currentDotsPair = currentDotsPair;
     }
 
-    public DotsPairGenerator getDpg() {
+    public DotsPairGeneratorInterface getDpg() {
         return dpg;
     }
 
@@ -840,6 +842,11 @@ public class DotsGameController implements GameController {
 
     public void setFforTrue(boolean fforTrue) {
         FforTrue = fforTrue;
+    }
+
+    public void setView(GameGUI gameGUI) {
+        this.theView = gameGUI;
+        this.theScene = gameGUI.getScene();
     }
 
 }
